@@ -1,0 +1,42 @@
+/*#THEBOX {
+    user-select: none;
+      }
+ */     
+
+/*
+body {
+  margin: 0;
+  overflow: hidden; /* Hide scrollbars 
+}
+
+/* Add more CSS styles for your SVG elements here 
+.cls-1 {
+  filter: url(#drop-shadow-4);
+  stroke: #999598;
+}
+*/
+
+
+@keyframes moveClouds {
+  0% {
+      transform: translateX(1920px); /* Start off-screen to the right */
+  }
+  100% {
+      transform: translateX(-1920px); /* End off-screen to the left */
+  }
+}
+
+
+#Cloud1, #Cloud2 {
+  animation: moveClouds 25s linear infinite;
+  animation-fill-mode: forwards;
+}
+/*
+.xy-bar-container {
+  width: 100%;
+  height: 20px;
+  background-color: #ccc;
+  position: relative;
+}
+
+*/
