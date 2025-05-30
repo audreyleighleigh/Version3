@@ -13,11 +13,11 @@
 }
 
 #Cloud1 {
-  animation: moveClouds 35s linear infinite;
+  animation: moveClouds 60s linear infinite;
 }
 
 #Cloud2 {
-  animation: moveClouds 35s linear infinite;
+  animation: moveClouds 60s linear infinite;
 }
 
       .cls-1 {
