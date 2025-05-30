@@ -794,6 +794,9 @@
   </defs>
 <g class="cls-69">
     <g id="Layer_3" data-name="Layer 3">
+      <!-- Background sky image (positioned behind) -->
+      <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/9d7eb257dd6c7bf0d3859f14d11fa691e61f6692/Sky.png" x="-500" y="0" width="3200" height="1700" preserveAspectRatio="xMidYMid slice"/>
+      <!-- Foreground sky image (original position) -->
       <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/9d7eb257dd6c7bf0d3859f14d11fa691e61f6692/Sky.png" x="-10" y="0" width="3200" height="1700" preserveAspectRatio="xMidYMid slice"/>
     </g>
     <g id="Cloud2">
