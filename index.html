@@ -9,10 +9,51 @@
 </head>
 <body>
     <object data="graphics.svg" type="image/svg+xml" id="svgObject" onload="changeColor()"></object>  
-    <audio controls>
-        <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s.wav" type="audio/wav">
+    
+    <!-- Audio player initially muted but can autoplay -->
+    <audio id="audioPlayer" muted autoplay loop>
+        <!-- Use direct GitHub raw URLs -->
+        <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/355cf5cf042a10b8943d999c2813cb2dff2e53ee/MA_BlueFoxMusic_Moonlight_30s.wav" type="audio/wav">
+        <!-- If you have an MP3 version, you can add its URL as well -->
+        <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/355cf5cf042a10b8943d999c2813cb2dff2e53ee/MA_BlueFoxMusic_Moonlight_30s.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
+    
+    <!-- Add play button -->
+    <button id="audioButton" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; z-index: 1000;">
+        🔊 Play Audio
+    </button>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioButton = document.getElementById('audioButton');
+            
+            // Button handler to unmute and play
+            audioButton.addEventListener('click', function() {
+                audioPlayer.muted = false;
+                audioPlayer.play().then(() => {
+                    audioButton.textContent = "🔇 Mute Audio";
+                }).catch(error => {
+                    console.error('Play failed:', error);
+                });
+                
+                // Toggle between mute/unmute
+                if (audioButton.textContent.includes("Mute")) {
+                    audioPlayer.muted = true;
+                    audioButton.textContent = "🔊 Play Audio";
+                } else {
+                    audioPlayer.muted = false;
+                    audioButton.textContent = "🔇 Mute Audio";
+                }
+            });
+        });
+        
+        document.getElementById('audioPlayer').addEventListener('error', function(e) {
+            console.error('Audio error:', e);
+            alert('Error loading audio file. See console for details.');
+        }, true); // Capture event in capturing phase to catch errors from source elements
+    </script>
     <script src="main.js" defer></script>
 </body>
 </html>
