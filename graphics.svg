@@ -803,7 +803,7 @@
       <path class="cls-24" d="m360.73,657.84c-4.69-28.88,1.26-38.85,6.77-42.89,19.06-13.99,62.27,21.1,76.75,6.77,5.68-5.61,0-12.11,6.77-24.83,9.88-18.57,31.98-23.51,33.79-23.88,20.81-4.33,47,4.12,51.24,18.61,3.8,12.99-11.92,24.34-6.77,32.36,3.33,5.2,12.29,4.1,30.1,3.01,54.19-3.33,60.62,1.31,63.21,3.76,9.04,8.57,9.52,26.96,3.01,39.13-11.82,22.1-46.8,23.89-79.76,25.58-37.62,1.93-38.56-5.27-81.27-3.76-33.61,1.18-45.44,8.69-64.71,1.5-19.61-7.31-31.87-23.22-39.13-35.37Z"/>
     </g>
 <g id="BigHill">
-  <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/176f4236619de1ce705065c1354501823ca11f80/bighill.png" width="1900" height="400" x="8" y="750" preserveAspectRatio="xMidYMid meet"/>
+  <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/176f4236619de1ce705065c1354501823ca11f80/bighill.png" width="2850" height="600" x="8" y="550" preserveAspectRatio="xMidYMid meet"/>
 </g>
     <g id="Square5Staged" visibility="hidden" class = "staged" data-csv-url="https://raw.githubusercontent.com/audreyleighleigh/Visualization/main/Housing2.csv">
       <circle class="cls-63" cx="1016.44" cy="739.92" r="159.08"/>
