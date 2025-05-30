@@ -54,22 +54,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
   });
 });
 
-function changeColor() {
-    const svgObject = document.querySelector('#svgObject'); // select the <object> tag
-    const svgDocument = svgObject.contentDocument; // get the SVG document
-
-    if (svgDocument) {
-        const svgElement = svgDocument.querySelector('#Cloud1 path'); // select the <path> inside <g id="Cloud1">
-        if (svgElement) {
-            svgElement.style.fill = 'yellow';
-            console.log('Color changed to orange');
-        } else {
-            console.log('Path element inside SVG element with id "Cloud1" is not found');
-        }
-    } else {
-        console.log('SVG document is not loaded');
-    }
-}
 
 function handleMicrointeraction(event) {
     console.log('Element clicked:', event.currentTarget); // Log the clicked element
