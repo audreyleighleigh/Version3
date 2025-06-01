@@ -817,10 +817,9 @@
     <image x="930" y="556" width="200" height="200" xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/6b4ac2ae9b8adcbe7ae95e9c8b31c30b34a5e408/LightningBolt.png" />
 </g>
 <g id="Square4Staged" visibility="hidden" class="staged" data-csv-url="https://raw.githubusercontent.com/audreyleighleigh/Visualization/main/Housing2.csv">
-  <!-- Groceries image -->
   <image 
-    id="GroceriesImageStaged"
-    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/8e17491f341948864a273ea775a0d3cb97c427a4/MedicalCare.png"
+    id="MedicalCare"
+    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/c0234ab5a4de8dd77a7813818c6a4cc171a9387a/MedicalCare.png"
     x="950" 
     y="650" 
     width="225" 
@@ -894,7 +893,7 @@
   <!-- Add your image -->
   <image 
     id="Square4Image"
-    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/8e17491f341948864a273ea775a0d3cb97c427a4/MedicalCare.png"
+    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/c0234ab5a4de8dd77a7813818c6a4cc171a9387a/MedicalCare.png"
     x="125" 
     y="590" 
     width="55" 
