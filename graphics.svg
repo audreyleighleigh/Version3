@@ -808,11 +808,17 @@
 <g id="BigHill">
   <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/176f4236619de1ce705065c1354501823ca11f80/bighill.png" width="2672.25" height="562.5" x="3" y="600" preserveAspectRatio="xMidYMid meet"/>
 </g>
-    <g id="Square5Staged" visibility="hidden" class = "staged" data-csv-url="https://raw.githubusercontent.com/audreyleighleigh/Visualization/main/Housing2.csv">
-      <circle class="cls-63" cx="1016.44" cy="739.92" r="159.08"/>
-      <rect class="cls-25" x="984.31" y="641.9" width="62.67" height="196.04"/>
-      <rect class="cls-27" x="985.11" y="644.31" width="62.67" height="196.04" transform="translate(274.11 1758.77) rotate(-90)"/>
-    </g>
+<g id="Square5Staged" visibility="hidden" class="staged" data-csv-url="https://raw.githubusercontent.com/audreyleighleigh/Visualization/main/Housing2.csv">
+  <!-- College image for staged view -->
+  <image 
+    id="CollegeImageStaged"
+    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/1f20fb92709dfea7a7cb9b350a3f0623ce6f8e47/College.png"
+    x="950" 
+    y="650" 
+    width="225" 
+    height="275" 
+    preserveAspectRatio="xMidYMid meet"/>
+</g>
 <g id="Square6Staged" visibility="hidden" class="staged" data-csv-url="https://raw.githubusercontent.com/audreyleighleigh/Visualization/main/Housing2.csv">
     <image x="930" y="556" width="200" height="200" xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/6b4ac2ae9b8adcbe7ae95e9c8b31c30b34a5e408/LightningBolt.png" />
 </g>
@@ -868,18 +874,25 @@
   height="80"
 />
     </g>
-    <g id="Square5" class = "wiggle" data-staged-id="Square5Staged">
-      <g>
-        <image class="cls-70" width="144" height="156" transform="translate(87 709)" xlink:href="data:image/png;base64,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"/>
-        <g>
-          <rect class="cls-28" x="100.38" y="721.8" width="103.27" height="116.22" rx="5.5" ry="5.5"/>
-          <path class="cls-66" d="m198.15,726.3c.53,0,1,.47,1,1v105.22c0,.53-.47,1-1,1h-92.27c-.53,0-1-.47-1-1v-105.22c0-.53.47-1,1-1h92.27m0-9h-92.27c-5.5,0-10,4.5-10,10v105.22c0,5.5,4.5,10,10,10h92.27c5.5,0,10-4.5,10-10v-105.22c0-5.5-4.5-10-10-10h0Z"/>
-        </g>
-      </g>
-      <circle class="cls-56" cx="151.62" cy="780.2" r="39.8"/>
-      <rect class="cls-19" x="143.58" y="755.67" width="15.68" height="49.05"/>
-      <rect class="cls-20" x="143.78" y="756.27" width="15.68" height="49.05" transform="translate(-629.17 932.42) rotate(-90)"/>
+<g id="Square5" class="wiggle" data-staged-id="Square5Staged">
+  <g>
+    <image class="cls-70" width="144" height="156" transform="translate(87 709)" xlink:href="data:image/png;base64,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"/>
+    <g>
+      <rect class="cls-28" x="100.38" y="721.8" width="103.27" height="116.22" rx="5.5" ry="5.5"/>
+      <path class="cls-66" d="m198.15,726.3c.53,0,1,.47,1,1v105.22c0,.53-.47,1-1,1h-92.27c-.53,0-1-.47-1-1v-105.22c0-.53.47-1,1-1h92.27m0-9h-92.27c-5.5,0-10,4.5-10,10v105.22c0,5.5,4.5,10,10,10h92.27c5.5,0,10-4.5,10-10v-105.22c0-5.5-4.5-10-10-10h0Z"/>
     </g>
+  </g>
+  
+  <!-- Add college image -->
+  <image 
+    id="CollegeImage"
+    xlink:href="https://raw.githubusercontent.com/audreyleighleigh/Version3/1f20fb92709dfea7a7cb9b350a3f0623ce6f8e47/College.png"
+    x="125" 
+    y="755" 
+    width="55" 
+    height="55" 
+    preserveAspectRatio="xMidYMid meet"/>
+</g>
 <g id="Square4" class="wiggle" data-staged-id="Square4Staged">
   <g id="Square4-2" data-name="Square4">
     <g>
