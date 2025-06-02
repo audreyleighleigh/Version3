@@ -87,14 +87,29 @@
             // Get audio element
             const audioPlayer = document.getElementById('audioPlayer');
             
-            // Simplified function to start audio (reused in multiple places)
+            // Enhanced function to start audio (with better handling for browser autoplay policies)
             function startAudio() {
+                // First unmute
                 audioPlayer.muted = false;
-                audioPlayer.play().then(() => {
-                    console.log('Audio started automatically');
-                }).catch(error => {
-                    console.error('Auto-play failed:', error);
-                });
+                
+                // Try to play with better error handling
+                const playPromise = audioPlayer.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Audio started automatically');
+                    }).catch(error => {
+                        console.error('Auto-play failed:', error);
+                        
+                        // If autoplay fails, try again with user interaction simulation
+                        document.addEventListener('click', function audioClickHandler() {
+                            audioPlayer.play();
+                            console.log('Audio started after user interaction');
+                            // Remove this event listener after first click
+                            document.removeEventListener('click', audioClickHandler);
+                        }, { once: true });
+                    });
+                }
             }
             
             // Skip video button functionality
@@ -115,7 +130,7 @@
                 });
             }
             
-            // When video ends, show the SVG and start audio
+            // When video ends, explicitly ensure audio plays
             player.on('ended', function() {
                 document.getElementById('videoContainer').style.display = 'none';
                 document.getElementById('svgContainer').style.opacity = '1';
@@ -126,8 +141,25 @@
                     skipButtonOnEnd.style.display = 'none';
                 }
                 
-                // Start audio automatically when video ends
+                // Make sure audio plays when video ends
+                audioPlayer.muted = false;
+                audioPlayer.volume = 1.0;
                 startAudio();
+                
+                // Additional attempt in case the first fails
+                setTimeout(() => {
+                    if (audioPlayer.paused) {
+                        console.log('Retry audio playback');
+                        audioPlayer.play();
+                    }
+                }, 500);
+            });
+            
+            // Add additional event listener to ensure audio can play
+            document.addEventListener('click', function() {
+                if (audioPlayer.paused && !document.getElementById('videoContainer').style.display) {
+                    startAudio();
+                }
             });
         });
         
