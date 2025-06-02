@@ -1,4 +1,3 @@
-
 window.addEventListener('DOMContentLoaded', (event) => {
   let svgObject = document.querySelector('#svgObject');
   let backgroundMusic; // Declare backgroundMusic here
@@ -106,20 +105,59 @@ function handleMicrointeraction(event) {
     let svgObject = document.querySelector('#svgObject');
     let svgDocument = svgObject.contentDocument;
     let svgRoot = d3.select(svgDocument.documentElement);
-    const newGroup = svgRoot.append('g');
-        // Select Square1 from the SVG documen
-
-    // Append mini icon of currentVisibleElement
+    
+    // Create separate groups for temporary and permanent elements
+    const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
+    const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
+    
+    // Add stamp button
+    const stampButton = svgRoot.append('g')
+      .attr('class', 'stamp-button')
+      .attr('transform', 'translate(50, 50)')
+      .style('cursor', 'pointer');
+      
+    stampButton.append('rect')
+      .attr('width', 40)
+      .attr('height', 40)
+      .attr('rx', 5)
+      .attr('fill', '#4CAF50')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 2);
+      
+    stampButton.append('text')
+      .attr('x', 20)
+      .attr('y', 25)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('fill', 'white')
+      .attr('font-family', 'Arial')
+      .attr('font-size', '12px')
+      .text('STAMP');
+    
+    // Stamp toggle state
+    let stampEnabled = false;
+    
+    // Toggle stamp function
+    stampButton.on('click', function() {
+      stampEnabled = !stampEnabled;
+      
+      // Visual feedback for toggle state
+      d3.select(this).select('rect')
+        .attr('fill', stampEnabled ? '#FF5722' : '#4CAF50');
+        
+      console.log('Stamp mode:', stampEnabled ? 'ON' : 'OFF');
+    });
+        
+    // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
 
     let yPosMap = {
-    'Square1': 670,
-    'Square2': 500,
-    'Square3': 340,
-    'Square4': 180,
-    'Square5': 20,
-    'Square6': -140,
-    // Add more elements as needed
+      'Square1': 670,
+      'Square2': 500,
+      'Square3': 340,
+      'Square4': 180,
+      'Square5': 20,
+      'Square6': -140,
     };
 
     let icon = newGroup.append('use')
@@ -138,13 +176,13 @@ function handleMicrointeraction(event) {
     const button = svgRoot.select('#Dot1');
     console.log('Button: ', button);
   
-    const sliderInteraction = d3.select(stagedElement); // Select the staged element
+    const sliderInteraction = d3.select(stagedElement);
     console.log('Slider Interaction: ', sliderInteraction);
-  
-    // Get the CSV URL from the data-csv-url attribute
+
+    // Get the CSV URL
     let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
     console.log('CSV URL: ', csvUrl);
-  
+
     // Load the CSV data
     d3.csv(csvUrl).then(data => {
       console.log('Loaded data: ', data);
@@ -174,104 +212,82 @@ function handleMicrointeraction(event) {
         const newX = Math.max(0, Math.min(1467, event.x - svgPosition.left - 288)); // Add 288 to the newX calculation
         console.log('New X position: ', newX);
 
-        // Update the icon's position
-        icon.attr('x', 3*(newX) + 745.5);
+        // Update the button's position
+        d3.select(this).attr('transform', `translate(${newX}, 0)`);  
+        
+        // Calculate current year and percentage
+        const currentYear = Math.round(yearScale(newX));
+        const currentSizeData = data.find(d => +d.YEAR === currentYear);
+        const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE;
+        const percentageChange = ((currentSize - size1984) / size1984) * 100;
+        
+        // Remove previous temporary elements
+        tempGroup.selectAll("*").remove();
+        
+        // Always add current year and percentage as temporary elements
+        tempGroup.append("text")
+          .attr("id", "yearDisplay")
+          .attr("x", newX + 400)
+          .attr("y", 275)
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "30px")
+          .attr("text-anchor", "end")
+          .attr("fill", "black")
+          .text(`${currentYear}`);
 
-  
-
-          // Update the button's position
-          d3.select(this).attr('transform', `translate(${newX}, 0)`);  
-          // Calculate the current year based on slider position
-          const currentYear = Math.round(yearScale(newX));
-          console.log('Current year: ', currentYear);
-  
-          // Find the corresponding data entry for the current year
-          const currentSizeData = data.find(d => +d.YEAR === currentYear);
-          console.log('Current size data: ', currentSizeData);
-  
-          // If data is found, update the sliderInteraction size
-          if (currentSizeData) {
-            // Use the sizeScale to calculate a scale factor based on the size
-            const scaleFactor = sizeScale(+currentSizeData.SIZE);
-            console.log('Scale factor: ', scaleFactor);
-  
-            // Update the transform attribute of the sliderInteraction group to scale it
-            sliderInteraction.attr('transform', `scale(${scaleFactor})`);
-          }
-  
-          // Find the size value for the current year
-          const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE; // Convert to number
-          console.log('Current size: ', currentSize);
-  
-          // Calculate the percentage change
-          const percentageChange = ((currentSize - size1984) / size1984) * 100;
-          console.log('Percentage change: ', percentageChange);
-  
-          // Append text elements
-          newGroup.selectAll("text").remove(); // Remove existing text elements
-
-
-  /*
-          newGroup.append("text")
-            .attr("x", newX)
-            .attr("y", 200) // Adjust y position as needed
-            .text(`Year: ${currentYear}`)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "20px")
-            .attr("fill", "black"); */
-
-          newGroup.append("text")
-            .attr("id", "yearDisplay")
+        tempGroup.append("text")
+          .attr("x", newX + 290)
+          .attr("y", 320)
+          .text(`     + ${percentageChange.toFixed(2)}%`)
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "30px")
+          .attr("fill", "red");
+          
+        // Create temporary mini icon that follows the slider
+        tempGroup.append('use')
+          .attr('xlink:href', `#${elementId}`)
+          .attr('x', 3*(newX) + 745.5)
+          .attr('y', yPosMap[elementId])
+          .attr('transform', 'scale(0.33)');
+          
+        // If stamping is enabled, create permanent elements
+        if (stampEnabled) {
+          console.log('Stamping at position:', newX);
+          
+          // Create permanent mini icon
+          stampGroup.append('use')
+            .attr('xlink:href', `#${elementId}`)
+            .attr('x', 3*(newX) + 745.5)
+            .attr('y', yPosMap[elementId])
+            .attr('transform', 'scale(0.33)')
+            .style('opacity', 0.7); // Slightly transparent to distinguish from temp
+            
+          // Create permanent year and percentage text
+          stampGroup.append("text")
             .attr("x", newX + 400)
-            .attr("y", 275) // Adjust y position as needed
+            .attr("y", 275)
             .attr("font-family", "sans-serif")
             .attr("font-size", "30px")
             .attr("text-anchor", "end")
-            .attr("fill", "black")
+            .attr("fill", "rgba(0,0,0,0.5)")
             .text(`${currentYear}`);
-  
-         /* newGroup.append("text")
-            .attr("x", newX)
-            .attr("y", 230) // Adjust y position as needed
-            .text(`Size: ${currentSize}`)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "20px")
-            .attr("fill", "black");*/
-  
-            newGroup.append("text")
+            
+          stampGroup.append("text")
             .attr("x", newX + 290)
-            .attr("y", 320) // Adjust y position as needed
+            .attr("y", 320)
+            .attr("fill", "rgba(255,0,0,0.5)")
             .text(`     + ${percentageChange.toFixed(2)}%`)
             .attr("font-family", "sans-serif")
-            .attr("font-size", "30px")
-            .attr("fill", "red");
-/*
-            // Append mini icon of currentVisibleElement
-            let elementId = stagedElement.id.replace('Staged', '');
+            .attr("font-size", "30px");
+        }
+        
+        // Update the scale of the element based on the data
+        if (currentSizeData) {
+          const scaleFactor = sizeScale(+currentSizeData.SIZE);
+          sliderInteraction.attr('transform', `scale(${scaleFactor})`);
+        }
+      });
 
-            let yPosMap = {
-              'Square1': 670,
-              'Square2': 500,
-              'Square3': 340,
-              'Square4': 180,
-              'Square5': 20,
-              'Square6': -140,
-              // Add more elements as needed
-          };
-
-            newGroup.append('use')
-                .attr('xlink:href', `#${elementId}`) // Reference the SVG element by id
-                .attr('x', 3*(newX) + 745.5)
-                .attr('y', yPosMap[elementId])
-                .attr('transform', 'scale(0.33)');  // Scale the element
-                console.log('Y value for element', elementId, ':', 670); // Log the y value
-             
-                console.log(yValue);
-            console.log('Text elements and image appended');
-              */
-          
-        });
-  
       // Apply the drag behavior to the button
       button.call(drag);
     }).catch(error => {
@@ -360,4 +376,4 @@ function handleMicrointeraction(event) {
     });
 }
 
- */   
+ */
