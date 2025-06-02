@@ -5,14 +5,41 @@ window.addEventListener('DOMContentLoaded', (event) => {
   // Set up stamp button toggle functionality
   const stampButton = document.getElementById('stampButton');
   if (stampButton) {
-    stampButton.addEventListener('click', function(event) {
+    // Clear any existing click handlers
+    stampButton.replaceWith(stampButton.cloneNode(true));
+    
+    // Get fresh reference after cloning
+    const freshStampButton = document.getElementById('stampButton');
+    
+    freshStampButton.addEventListener('click', function(event) {
+      // Toggle the state
       window.stampEnabled = !window.stampEnabled;
+      
+      // Update button appearance
       this.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
+      
       console.log('Stamp mode toggled:', window.stampEnabled ? 'ON' : 'OFF');
       
-      // Prevent propagation to avoid conflicts with other click handlers
+      // Prevent event propagation to window
       event.stopPropagation();
     });
+  }
+
+  // Fix audio autoplay
+  const audioPlayer = document.getElementById('audioPlayer');
+  if (audioPlayer) {
+    // Try to play audio as soon as possible
+    document.addEventListener('click', function audioClickHandler() {
+      audioPlayer.muted = false;
+      audioPlayer.play().then(() => {
+        console.log('Audio started on first click');
+      }).catch(err => {
+        console.error('Audio failed to play:', err);
+      });
+      
+      // Remove this handler after first interaction
+      document.removeEventListener('click', audioClickHandler);
+    }, { once: true });
   }
 
   let svgObject = document.querySelector('#svgObject');
@@ -131,6 +158,9 @@ function handleMicrointeraction(event) {
     const stampButton = document.getElementById('stampButton');
     if (stampButton) {
       stampButton.style.display = 'block';
+      
+      // Ensure button color matches the current state
+      stampButton.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
     }
     
     // Get element ID for the icon references
