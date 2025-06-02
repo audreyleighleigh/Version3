@@ -93,6 +93,9 @@
                 document.getElementById('videoContainer').style.display = 'none';
                 document.getElementById('svgContainer').style.opacity = '1';
                 
+                // Hide the skip button itself
+                document.getElementById('skipVideoButton').style.display = 'none';
+                
                 // Optional: pause the video when skipped
                 player.pause();
             });
@@ -101,6 +104,9 @@
             player.on('ended', function() {
                 document.getElementById('videoContainer').style.display = 'none';
                 document.getElementById('svgContainer').style.opacity = '1';
+                
+                // Also hide the skip button when the video ends naturally
+                document.getElementById('skipVideoButton').style.display = 'none';
                 
                 // Uncomment the next lines if you want audio to play automatically after video
                 // const audioPlayer = document.getElementById('audioPlayer');
