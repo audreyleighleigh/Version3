@@ -87,10 +87,8 @@
         <object data="graphics.svg" type="image/svg+xml" id="svgObject"></object>  
     </div>
     
-    <!-- Stamp button -->
-    <button id="stampButton" style="position: fixed; top: 100px; right: 100px; padding: 15px 30px; background-color: #4CAF50; color: white; border: 3px solid #333; border-radius: 10px; font-size: 18px; font-weight: bold; cursor: pointer; z-index: 1002; display: none;">
-        STAMP
-    </button>
+    <!-- Stamp button - removed duplicate inline styles since we have them in the CSS -->
+    <button id="stampButton">STAMP</button>
     
     <!-- Audio player initially muted but can autoplay -->
     <audio id="audioPlayer" muted autoplay loop>
@@ -112,6 +110,21 @@
             
             // Get audio element
             const audioPlayer = document.getElementById('audioPlayer');
+            
+            // Initialize global stamp state
+            window.stampEnabled = false;
+            
+            // Set up stamp button
+            const stampButton = document.getElementById('stampButton');
+            if (stampButton) {
+                stampButton.addEventListener('click', function(event) {
+                    // Toggle stamp mode
+                    window.stampEnabled = !window.stampEnabled;
+                    this.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
+                    console.log('Stamp mode:', window.stampEnabled ? 'ON' : 'OFF');
+                    event.stopPropagation(); // Prevent event from interfering with other handlers
+                });
+            }
             
             // Enhanced function to start audio (with better handling for browser autoplay policies)
             function startAudio() {

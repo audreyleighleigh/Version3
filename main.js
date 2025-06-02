@@ -117,29 +117,8 @@ function handleMicrointeraction(event) {
         stampButton.style.display = 'block';
     }
     
-    // Global stamp toggle state
-    if (typeof window.stampEnabled === 'undefined') {
-        window.stampEnabled = false;
-    }
+    // Note: We no longer create the stamp button in SVG since it's in the HTML
     
-    // Set up stamp button click handler if not already done
-    if (!stampButton.hasAttribute('listener-added')) {
-        stampButton.setAttribute('listener-added', 'true');
-        
-        stampButton.addEventListener('click', function(event) {
-            // Toggle the stamp state
-            window.stampEnabled = !window.stampEnabled;
-            
-            // Visual feedback
-            stampButton.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
-            
-            console.log('Stamp mode:', window.stampEnabled ? 'ON' : 'OFF');
-            
-            // Prevent event from propagating
-            event.stopPropagation();
-        });
-    }
-        
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
 
@@ -240,11 +219,11 @@ function handleMicrointeraction(event) {
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
           
-        // IMPORTANT: Only stamp if explicitly enabled by the stamp button
+        // Only stamp if window.stampEnabled is true
         if (window.stampEnabled === true) {
           console.log('Stamping at position:', newX);
           
-          // Create permanent mini icon
+          // Create permanent elements (icon and text)
           stampGroup.append('use')
             .attr('xlink:href', `#${elementId}`)
             .attr('x', 3*(newX) + 745.5)
@@ -252,7 +231,6 @@ function handleMicrointeraction(event) {
             .attr('transform', 'scale(0.33)')
             .style('opacity', 0.7); // Slightly transparent to distinguish from temp
             
-          // Create permanent year and percentage text
           stampGroup.append("text")
             .attr("x", newX + 400)
             .attr("y", 275)
