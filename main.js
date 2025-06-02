@@ -1,4 +1,20 @@
 window.addEventListener('DOMContentLoaded', (event) => {
+  // Initialize stamp state globally
+  window.stampEnabled = false;
+  
+  // Set up stamp button toggle functionality
+  const stampButton = document.getElementById('stampButton');
+  if (stampButton) {
+    stampButton.addEventListener('click', function(event) {
+      window.stampEnabled = !window.stampEnabled;
+      this.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
+      console.log('Stamp mode toggled:', window.stampEnabled ? 'ON' : 'OFF');
+      
+      // Prevent propagation to avoid conflicts with other click handlers
+      event.stopPropagation();
+    });
+  }
+
   let svgObject = document.querySelector('#svgObject');
   let backgroundMusic; // Declare backgroundMusic here
 
@@ -114,10 +130,8 @@ function handleMicrointeraction(event) {
     // Show the stamp button when slider interaction starts
     const stampButton = document.getElementById('stampButton');
     if (stampButton) {
-        stampButton.style.display = 'block';
+      stampButton.style.display = 'block';
     }
-    
-    // Note: We no longer create the stamp button in SVG since it's in the HTML
     
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
@@ -219,9 +233,10 @@ function handleMicrointeraction(event) {
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
           
-        // Only stamp if window.stampEnabled is true
+        // FIX: Now we properly check window.stampEnabled
+        // ONLY create permanent elements when stamp is enabled (button is orange)
         if (window.stampEnabled === true) {
-          console.log('Stamping at position:', newX);
+          console.log('Stamping mode ON - Creating permanent elements at:', newX);
           
           // Create permanent elements (icon and text)
           stampGroup.append('use')
