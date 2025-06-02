@@ -44,27 +44,6 @@
         #skipVideoButton:hover {
             background-color: rgba(0, 0, 0, 0.9);
         }
-        
-        /* Stamp button style */
-        #stampButton {
-            position: fixed;
-            top: 100px;
-            right: 100px;
-            padding: 15px 30px;
-            background-color: #4CAF50;
-            color: white;
-            border: 3px solid #333;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1002;
-            display: none; /* Initially hidden */
-        }
-        
-        #stampButton:hover {
-            background-color: #45a049;
-        }
     </style>
 </head>
 <body>
@@ -83,12 +62,8 @@
     
     <!-- SVG container that shows after video -->
     <div id="svgContainer">
-        <!-- Removed onload="changeColor()" which was causing an error -->
         <object data="graphics.svg" type="image/svg+xml" id="svgObject"></object>  
     </div>
-    
-    <!-- Stamp button - removed duplicate inline styles since we have them in the CSS -->
-    <button id="stampButton">STAMP</button>
     
     <!-- Audio player initially muted but can autoplay -->
     <audio id="audioPlayer" muted autoplay loop>
