@@ -75,13 +75,6 @@
         Your browser does not support the audio element.
     </audio>
     
-    <!-- Add keyboard shortcut instructions -->
-    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
-        <div style="color: white; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 5px; font-size: 14px; text-align: center;">
-            Press 'M' key to mute/unmute audio
-        </div>
-    </div>
-    
     <!-- Vimeo Player API -->
     <script src="https://player.vimeo.com/api/player.js"></script>
     
@@ -91,23 +84,16 @@
             const iframe = document.getElementById('vimeoPlayer');
             const player = new Vimeo.Player(iframe);
             
-            // Get audio elements
+            // Get audio element
             const audioPlayer = document.getElementById('audioPlayer');
-            const audioButton = document.getElementById('audioButton');
             
-            // Function to start audio (reused in multiple places)
+            // Simplified function to start audio (reused in multiple places)
             function startAudio() {
-                document.getElementById('videoContainer').style.display = 'none';
                 audioPlayer.muted = false;
                 audioPlayer.play().then(() => {
                     console.log('Audio started automatically');
-                    audioButton.textContent = "🔇 Mute Audio";
                 }).catch(error => {
                     console.error('Auto-play failed:', error);
-                    // Audio play failed, it might be due to browser policies
-                    // We can keep the button ready to play manually
-                    audioPlayer.muted = true;
-                    audioButton.textContent = "🔊 Play Audio";
                 });
             }
             
@@ -142,65 +128,6 @@
                 
                 // Start audio automatically when video ends
                 startAudio();
-            });
-            
-            // Audio button toggle functionality - completely rewritten to fix conflicts
-            if (audioButton) {
-                // Remove any existing click handlers
-                audioButton.replaceWith(audioButton.cloneNode(true));
-                
-                // Get the fresh reference after cloning
-                const freshAudioButton = document.getElementById('audioButton');
-                
-                freshAudioButton.addEventListener('click', function(e) {
-                    // Prevent event propagation to avoid conflicts
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    console.log('Audio button clicked, current state:', 
-                                audioPlayer.paused ? 'paused' : 'playing',
-                                audioPlayer.muted ? 'muted' : 'unmuted');
-                    
-                    // Simple toggle based on current button text
-                    if (freshAudioButton.textContent.includes("Play")) {
-                        // Currently showing "Play" - so we should play
-                        console.log('Starting audio...');
-                        audioPlayer.muted = false;
-                        
-                        // Use setTimeout to avoid race conditions
-                        setTimeout(() => {
-                            audioPlayer.play();
-                            freshAudioButton.textContent = "🔇 Mute Audio";
-                            console.log('Audio should be playing now');
-                        }, 50);
-                    } else {
-                        // Currently showing "Mute" - so we should mute/pause
-                        console.log('Stopping audio...');
-                        audioPlayer.pause();
-                        audioPlayer.muted = true;
-                        freshAudioButton.textContent = "🔊 Play Audio";
-                        console.log('Audio should be stopped now');
-                    }
-                    
-                    return false;
-                });
-            }
-            
-            // Add keyboard shortcut for audio control
-            document.addEventListener('keydown', function(event) {
-                if (event.key.toLowerCase() === 'm') {
-                    const audioPlayer = document.getElementById('audioPlayer');
-                    if (audioPlayer.muted || audioPlayer.paused) {
-                        // Unmute and play
-                        audioPlayer.muted = false;
-                        audioPlayer.play();
-                        console.log('Audio unmuted via keyboard');
-                    } else {
-                        // Mute
-                        audioPlayer.muted = true;
-                        console.log('Audio muted via keyboard');
-                    }
-                }
             });
         });
         
