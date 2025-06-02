@@ -106,18 +106,19 @@ function handleMicrointeraction(event) {
     let svgDocument = svgObject.contentDocument;
     let svgRoot = d3.select(svgDocument.documentElement);
     
-    // Create separate groups for temporary and permanent elements
+    // Create proper groups for temporary elements and stamps
+    const newGroup = svgRoot.append('g').attr('class', 'slider-elements');
     const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
     const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
     
-    // Add stamp button
+    // Add stamp button in top-right corner
     const stampButton = svgRoot.append('g')
       .attr('class', 'stamp-button')
-      .attr('transform', 'translate(50, 50)')
+      .attr('transform', 'translate(1700, 50)') // Position in top-right
       .style('cursor', 'pointer');
       
     stampButton.append('rect')
-      .attr('width', 40)
+      .attr('width', 80)
       .attr('height', 40)
       .attr('rx', 5)
       .attr('fill', '#4CAF50')
@@ -125,13 +126,13 @@ function handleMicrointeraction(event) {
       .attr('stroke-width', 2);
       
     stampButton.append('text')
-      .attr('x', 20)
+      .attr('x', 40)
       .attr('y', 25)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('fill', 'white')
       .attr('font-family', 'Arial')
-      .attr('font-size', '12px')
+      .attr('font-size', '14px')
       .text('STAMP');
     
     // Stamp toggle state
@@ -160,17 +161,9 @@ function handleMicrointeraction(event) {
       'Square6': -140,
     };
 
-    let icon = newGroup.append('use')
-    .attr('xlink:href', `#${elementId}`) // Reference the SVG element by id
-    .attr('y', yPosMap[elementId])
-    .attr('transform', 'scale(0.33)');  // Scale the elem
-  
-
+    // We don't create the left icon here anymore
     
-
-    console.log('SVG Root: ', svgRoot.node()); // Log the SVG root
-
-   
+    console.log('SVG Root: ', svgRoot.node());
     console.log('SVG: ', svgRoot);
   
     const button = svgRoot.select('#Dot1');
@@ -178,17 +171,17 @@ function handleMicrointeraction(event) {
   
     const sliderInteraction = d3.select(stagedElement);
     console.log('Slider Interaction: ', sliderInteraction);
-
+  
     // Get the CSV URL
     let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
     console.log('CSV URL: ', csvUrl);
-
+  
     // Load the CSV data
     d3.csv(csvUrl).then(data => {
       console.log('Loaded data: ', data);
   
       // Find the size value for the year 1984
-      const size1984 = +data.find(d => d.YEAR === '1984').SIZE; // Convert to number
+      const size1984 = +data.find(d => d.YEAR === '1984').SIZE;
       console.log('Size in 1984: ', size1984);
   
       // Create scales for year and size mapping
@@ -199,17 +192,17 @@ function handleMicrointeraction(event) {
   
       const sizeScale = d3.scaleLinear()
         .domain([18.31, 40.98])
-        .range([.75, 1.5]); // Adjusted to represent your scaling range
+        .range([.75, 1.5]);
       console.log('Size scale: ', sizeScale);
   
-      // Set the transform origin to the center of the sliderInteraction
+      // Set the transform origin to the center
       sliderInteraction.style('transform-origin', 'center bottom');
   
       // Create the drag behavior
       const drag = d3.drag()
       .on('drag', function (event, d) {
         const svgPosition = svgRoot.node().getBoundingClientRect();
-        const newX = Math.max(0, Math.min(1467, event.x - svgPosition.left - 288)); // Add 288 to the newX calculation
+        const newX = Math.max(0, Math.min(1467, event.x - svgPosition.left - 288));
         console.log('New X position: ', newX);
 
         // Update the button's position
@@ -217,9 +210,16 @@ function handleMicrointeraction(event) {
         
         // Calculate current year and percentage
         const currentYear = Math.round(yearScale(newX));
+        console.log('Current year: ', currentYear);
+        
         const currentSizeData = data.find(d => +d.YEAR === currentYear);
+        console.log('Current size data: ', currentSizeData);
+        
         const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE;
+        console.log('Current size: ', currentSize);
+        
         const percentageChange = ((currentSize - size1984) / size1984) * 100;
+        console.log('Percentage change: ', percentageChange);
         
         // Remove previous temporary elements
         tempGroup.selectAll("*").remove();
@@ -275,15 +275,16 @@ function handleMicrointeraction(event) {
           stampGroup.append("text")
             .attr("x", newX + 290)
             .attr("y", 320)
-            .attr("fill", "rgba(255,0,0,0.5)")
             .text(`     + ${percentageChange.toFixed(2)}%`)
             .attr("font-family", "sans-serif")
-            .attr("font-size", "30px");
+            .attr("font-size", "30px")
+            .attr("fill", "rgba(255,0,0,0.5)");
         }
         
         // Update the scale of the element based on the data
         if (currentSizeData) {
           const scaleFactor = sizeScale(+currentSizeData.SIZE);
+          console.log('Scale factor: ', scaleFactor);
           sliderInteraction.attr('transform', `scale(${scaleFactor})`);
         }
       });
