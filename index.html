@@ -144,27 +144,45 @@
                 startAudio();
             });
             
-            // Audio button toggle functionality
+            // Audio button toggle functionality - completely rewritten to fix conflicts
             if (audioButton) {
-                audioButton.addEventListener('click', function() {
-                    console.log('Audio button clicked');
+                // Remove any existing click handlers
+                audioButton.replaceWith(audioButton.cloneNode(true));
+                
+                // Get the fresh reference after cloning
+                const freshAudioButton = document.getElementById('audioButton');
+                
+                freshAudioButton.addEventListener('click', function(e) {
+                    // Prevent event propagation to avoid conflicts
+                    e.preventDefault();
+                    e.stopPropagation();
                     
-                    if (audioPlayer.muted || audioPlayer.paused) {
-                        // Unmute and play
+                    console.log('Audio button clicked, current state:', 
+                                audioPlayer.paused ? 'paused' : 'playing',
+                                audioPlayer.muted ? 'muted' : 'unmuted');
+                    
+                    // Simple toggle based on current button text
+                    if (freshAudioButton.textContent.includes("Play")) {
+                        // Currently showing "Play" - so we should play
+                        console.log('Starting audio...');
                         audioPlayer.muted = false;
-                        audioPlayer.play().then(() => {
-                            audioButton.textContent = "🔇 Mute Audio";
-                            console.log('Audio playing via button click');
-                        }).catch(err => {
-                            console.error('Failed to play audio:', err);
-                        });
+                        
+                        // Use setTimeout to avoid race conditions
+                        setTimeout(() => {
+                            audioPlayer.play();
+                            freshAudioButton.textContent = "🔇 Mute Audio";
+                            console.log('Audio should be playing now');
+                        }, 50);
                     } else {
-                        // Mute and pause
+                        // Currently showing "Mute" - so we should mute/pause
+                        console.log('Stopping audio...');
                         audioPlayer.pause();
                         audioPlayer.muted = true;
-                        audioButton.textContent = "🔊 Play Audio";
-                        console.log('Audio paused via button click');
+                        freshAudioButton.textContent = "🔊 Play Audio";
+                        console.log('Audio should be stopped now');
                     }
+                    
+                    return false;
                 });
             }
         });
