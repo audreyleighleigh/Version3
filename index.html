@@ -84,99 +84,88 @@
     <script src="https://player.vimeo.com/api/player.js"></script>
     
     <script>
-        // Define the missing changeColor function to prevent errors
-        function changeColor() {
-            // Empty implementation since the function wasn't defined
-            console.log("changeColor called");
-        }
-        
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize Vimeo player
             const iframe = document.getElementById('vimeoPlayer');
             const player = new Vimeo.Player(iframe);
             
-            // Get skip button with a check for null
-            const skipButton = document.getElementById('skipVideoButton');
+            // Get audio elements
+            const audioPlayer = document.getElementById('audioPlayer');
+            const audioButton = document.getElementById('audioButton');
             
+            // Function to start audio (reused in multiple places)
+            function startAudio() {
+                audioPlayer.muted = false;
+                const playPromise = audioPlayer.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log('Audio started automatically');
+                        audioButton.textContent = "🔇 Mute Audio";
+                    }).catch(error => {
+                        console.error('Auto-play failed:', error);
+                        // Keep button ready to play manually
+                        audioPlayer.muted = true;
+                        audioButton.textContent = "🔊 Play Audio";
+                    });
+                }
+            }
+            
+            // Skip video button functionality
+            const skipButton = document.getElementById('skipVideoButton');
             if (skipButton) {
-                // Skip video button functionality with more reliable removal
                 skipButton.addEventListener('click', function() {
                     document.getElementById('videoContainer').style.display = 'none';
                     document.getElementById('svgContainer').style.opacity = '1';
                     
-                    // Remove from DOM directly using removeChild
-                    if (skipButton.parentNode) {
-                        try {
-                            skipButton.parentNode.removeChild(skipButton);
-                            console.log('Skip button successfully removed from DOM');
-                        } catch (e) {
-                            console.error('Error removing skip button:', e);
-                            // Fallback to hiding with CSS
-                            skipButton.style.display = 'none';
-                            skipButton.style.visibility = 'hidden';
-                        }
-                    }
+                    // Hide the button
+                    skipButton.style.display = 'none';
                     
-                    // Optional: pause the video when skipped
+                    // Pause the video
                     player.pause();
+                    
+                    // Start audio automatically when skipped
+                    startAudio();
                 });
-            } else {
-                console.error("Skip button not found in DOM");
             }
             
-            // When video ends, use the same reliable approach
+            // When video ends, show the SVG and start audio
             player.on('ended', function() {
                 document.getElementById('videoContainer').style.display = 'none';
                 document.getElementById('svgContainer').style.opacity = '1';
                 
-                // Get the button again and remove it
+                // Hide skip button
                 const skipButtonOnEnd = document.getElementById('skipVideoButton');
-                if (skipButtonOnEnd && skipButtonOnEnd.parentNode) {
-                    skipButtonOnEnd.parentNode.removeChild(skipButtonOnEnd);
+                if (skipButtonOnEnd) {
+                    skipButtonOnEnd.style.display = 'none';
                 }
+                
+                // Start audio automatically when video ends
+                startAudio();
             });
             
-            // Completely rewritten audio button functionality
-            const audioPlayer = document.getElementById('audioPlayer');
-            const audioButton = document.getElementById('audioButton');
-            
-            if (audioPlayer && audioButton) {
-                // Set initial state
-                audioPlayer.muted = true;
-                audioButton.textContent = "🔊 Play Audio";
-                
+            // Audio button toggle functionality
+            if (audioButton) {
                 audioButton.addEventListener('click', function() {
                     console.log('Audio button clicked');
                     
-                    if (audioPlayer.muted) {
+                    if (audioPlayer.muted || audioPlayer.paused) {
                         // Unmute and play
                         audioPlayer.muted = false;
-                        const playPromise = audioPlayer.play();
-                        
-                        if (playPromise !== undefined) {
-                            playPromise.then(() => {
-                                audioButton.textContent = "🔇 Mute Audio";
-                                console.log('Audio playing successfully');
-                            }).catch(error => {
-                                console.error('Play failed:', error);
-                                // Reset to initial state if play fails
-                                audioPlayer.muted = true;
-                                audioButton.textContent = "🔊 Play Audio";
-                            });
-                        } else {
-                            // For browsers that don't return a promise
+                        audioPlayer.play().then(() => {
                             audioButton.textContent = "🔇 Mute Audio";
-                        }
+                            console.log('Audio playing via button click');
+                        }).catch(err => {
+                            console.error('Failed to play audio:', err);
+                        });
                     } else {
                         // Mute and pause
-                        audioPlayer.muted = true;
                         audioPlayer.pause();
+                        audioPlayer.muted = true;
                         audioButton.textContent = "🔊 Play Audio";
-                        console.log('Audio muted and paused');
+                        console.log('Audio paused via button click');
                     }
                 });
-            } else {
-                console.error("Audio player or button not found");
             }
         });
         
