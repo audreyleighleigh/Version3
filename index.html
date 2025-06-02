@@ -88,13 +88,23 @@
             const iframe = document.getElementById('vimeoPlayer');
             const player = new Vimeo.Player(iframe);
             
-            // Skip video button functionality
-            document.getElementById('skipVideoButton').addEventListener('click', function() {
+            const skipButton = document.getElementById('skipVideoButton');
+            
+            // Skip video button functionality - improved to ensure button disappears
+            skipButton.addEventListener('click', function() {
                 document.getElementById('videoContainer').style.display = 'none';
                 document.getElementById('svgContainer').style.opacity = '1';
                 
-                // Hide the skip button itself
-                document.getElementById('skipVideoButton').style.display = 'none';
+                // More aggressive approach to hide the button
+                skipButton.style.display = 'none';
+                skipButton.style.visibility = 'hidden';
+                skipButton.style.opacity = '0';
+                
+                // For debugging
+                console.log('Skip button clicked, hiding button...');
+                
+                // Optional: try removing the button from DOM entirely
+                skipButton.parentNode.removeChild(skipButton);
                 
                 // Optional: pause the video when skipped
                 player.pause();
@@ -118,14 +128,23 @@
             const audioPlayer = document.getElementById('audioPlayer');
             const audioButton = document.getElementById('audioButton');
             
-            // Button handler to unmute and play
+            // Improved button handler to toggle audio properly
             audioButton.addEventListener('click', function() {
+                console.log('Audio button clicked, current muted state:', audioPlayer.muted);
+                
                 // Toggle between mute/unmute
                 if (audioButton.textContent.includes("Mute")) {
                     audioPlayer.muted = true;
+                    audioPlayer.pause(); // Actually pause the audio
                     audioButton.textContent = "🔊 Play Audio";
+                    console.log('Audio muted and paused');
                 } else {
                     audioPlayer.muted = false;
+                    audioPlayer.play().then(() => {
+                        console.log('Audio playing successfully');
+                    }).catch(error => {
+                        console.error('Error playing audio:', error);
+                    });
                     audioButton.textContent = "🔇 Mute Audio";
                 }
             });
