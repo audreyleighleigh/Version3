@@ -23,11 +23,33 @@
             opacity: 0;
             transition: opacity 1s;
         }
+        
+        /* Skip video button style */
+        #skipVideoButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 101;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        
+        #skipVideoButton:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
     </style>
 </head>
 <body>
     <!-- Video container that shows first -->
     <div id="videoContainer">
+        <!-- Skip video button -->
+        <button id="skipVideoButton">Skip Video</button>
         <div style="padding:55.43% 0 0 0;position:relative;">
             <iframe id="vimeoPlayer" src="https://player.vimeo.com/video/1088968472?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" 
                     frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media" 
@@ -64,6 +86,15 @@
             const iframe = document.getElementById('vimeoPlayer');
             const player = new Vimeo.Player(iframe);
             
+            // Skip video button functionality
+            document.getElementById('skipVideoButton').addEventListener('click', function() {
+                document.getElementById('videoContainer').style.display = 'none';
+                document.getElementById('svgContainer').style.opacity = '1';
+                
+                // Optional: pause the video when skipped
+                player.pause();
+            });
+            
             // When video ends, show the SVG
             player.on('ended', function() {
                 document.getElementById('videoContainer').style.display = 'none';
@@ -85,14 +116,29 @@
                 if (audioButton.textContent.includes("Mute")) {
                     audioPlayer.muted = true;
                     audioButton.textContent = "🔊 Play Audio";
-                } else {
-                    audioPlayer.muted = false;
-                    audioPlayer.play().then(() => {
-                        audioButton.textContent = "🔇 Mute Audio";
-                    }).catch(error => {
-                        console.error('Play failed:', error);
-                    });
-                }
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html></body>    </script>        });            });                }                    });                        console.error('Play failed:', error);                    }).catch(error => {                        audioButton.textContent = "🔇 Mute Audio";                    audioPlayer.play().then(() => {                    audioPlayer.muted = false;                } else {            
+            // Skip video button functionality
+            document.getElementById('skipVideoButton').addEventListener('click', function() {
+                document.getElementById('videoContainer').style.display = 'none';
+                document.getElementById('svgContainer').style.opacity = '1';
+                
+                // Optionally, you can unmute and play the audio here as well
+                // audioPlayer.muted = false;
+                // audioPlayer.play();
+                // audioButton.textContent = "🔇 Mute Audio";
             });
         });
         
