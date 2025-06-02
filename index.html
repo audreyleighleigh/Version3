@@ -75,10 +75,12 @@
         Your browser does not support the audio element.
     </audio>
     
-    <!-- Add play button with MODIFIED text to confirm changes -->
-    <button id="audioButton" style="position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; z-index: 1000;">
-        🔊 Play/Pause Audio
-    </button>
+    <!-- Add keyboard shortcut instructions -->
+    <div style="position: fixed; bottom: 20px; right: 20px; z-index: 1000;">
+        <div style="color: white; background: rgba(0,0,0,0.5); padding: 8px; border-radius: 5px; font-size: 14px; text-align: center;">
+            Press 'M' key to mute/unmute audio
+        </div>
+    </div>
     
     <!-- Vimeo Player API -->
     <script src="https://player.vimeo.com/api/player.js"></script>
@@ -95,20 +97,18 @@
             
             // Function to start audio (reused in multiple places)
             function startAudio() {
+                document.getElementById('videoContainer').style.display = 'none';
                 audioPlayer.muted = false;
-                const playPromise = audioPlayer.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log('Audio started automatically');
-                        audioButton.textContent = "🔇 Mute Audio";
-                    }).catch(error => {
-                        console.error('Auto-play failed:', error);
-                        // Keep button ready to play manually
-                        audioPlayer.muted = true;
-                        audioButton.textContent = "🔊 Play Audio";
-                    });
-                }
+                audioPlayer.play().then(() => {
+                    console.log('Audio started automatically');
+                    audioButton.textContent = "🔇 Mute Audio";
+                }).catch(error => {
+                    console.error('Auto-play failed:', error);
+                    // Audio play failed, it might be due to browser policies
+                    // We can keep the button ready to play manually
+                    audioPlayer.muted = true;
+                    audioButton.textContent = "🔊 Play Audio";
+                });
             }
             
             // Skip video button functionality
@@ -185,6 +185,23 @@
                     return false;
                 });
             }
+            
+            // Add keyboard shortcut for audio control
+            document.addEventListener('keydown', function(event) {
+                if (event.key.toLowerCase() === 'm') {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    if (audioPlayer.muted || audioPlayer.paused) {
+                        // Unmute and play
+                        audioPlayer.muted = false;
+                        audioPlayer.play();
+                        console.log('Audio unmuted via keyboard');
+                    } else {
+                        // Mute
+                        audioPlayer.muted = true;
+                        console.log('Audio muted via keyboard');
+                    }
+                }
+            });
         });
         
         document.getElementById('audioPlayer').addEventListener('error', function(e) {
