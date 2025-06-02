@@ -106,53 +106,39 @@ function handleMicrointeraction(event) {
     let svgDocument = svgObject.contentDocument;
     let svgRoot = d3.select(svgDocument.documentElement);
     
-    // Create proper groups for temporary elements and stamps
+    // Create groups for temporary elements and stamps
     const newGroup = svgRoot.append('g').attr('class', 'slider-elements');
     const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
     const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
     
-    // Add stamp button in a more visible position
-    const stampButton = svgRoot.append('g')
-      .attr('class', 'stamp-button')
-      .attr('transform', 'translate(1200, 100)') // Adjusted position for visibility
-      .style('cursor', 'pointer');
-      
-    stampButton.append('rect')
-      .attr('width', 120)
-      .attr('height', 50)
-      .attr('rx', 8)
-      .attr('fill', '#4CAF50')
-      .attr('stroke', '#000')
-      .attr('stroke-width', 3);
-      
-    stampButton.append('text')
-      .attr('x', 60)
-      .attr('y', 30)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', 'white')
-      .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '18px')
-      .attr('font-weight', 'bold')
-      .text('STAMP');
+    // Show the stamp button when slider interaction starts
+    const stampButton = document.getElementById('stampButton');
+    if (stampButton) {
+        stampButton.style.display = 'block';
+    }
     
-    // Stamp toggle state - start as false (off)
-    let stampEnabled = false;
+    // Global stamp toggle state
+    if (typeof window.stampEnabled === 'undefined') {
+        window.stampEnabled = false;
+    }
     
-    // Toggle stamp function
-    stampButton.on('click', function(event) {
-      // Stop event propagation to prevent other click handlers
-      event.stopPropagation();
-      
-      // Toggle the state
-      stampEnabled = !stampEnabled;
-      
-      // Visual feedback for toggle state
-      d3.select(this).select('rect')
-        .attr('fill', stampEnabled ? '#FF5722' : '#4CAF50');
+    // Set up stamp button click handler if not already done
+    if (!stampButton.hasAttribute('listener-added')) {
+        stampButton.setAttribute('listener-added', 'true');
         
-      console.log('Stamp mode:', stampEnabled ? 'ON' : 'OFF');
-    });
+        stampButton.addEventListener('click', function(event) {
+            // Toggle the stamp state
+            window.stampEnabled = !window.stampEnabled;
+            
+            // Visual feedback
+            stampButton.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
+            
+            console.log('Stamp mode:', window.stampEnabled ? 'ON' : 'OFF');
+            
+            // Prevent event from propagating
+            event.stopPropagation();
+        });
+    }
         
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
@@ -255,7 +241,7 @@ function handleMicrointeraction(event) {
           .attr('transform', 'scale(0.33)');
           
         // IMPORTANT: Only stamp if explicitly enabled by the stamp button
-        if (stampEnabled === true) {
+        if (window.stampEnabled === true) {
           console.log('Stamping at position:', newX);
           
           // Create permanent mini icon
