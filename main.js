@@ -111,35 +111,40 @@ function handleMicrointeraction(event) {
     const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
     const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
     
-    // Add stamp button in top-right corner
+    // Add stamp button in a more visible position
     const stampButton = svgRoot.append('g')
       .attr('class', 'stamp-button')
-      .attr('transform', 'translate(1700, 50)') // Position in top-right
+      .attr('transform', 'translate(1200, 100)') // Adjusted position for visibility
       .style('cursor', 'pointer');
       
     stampButton.append('rect')
-      .attr('width', 80)
-      .attr('height', 40)
-      .attr('rx', 5)
+      .attr('width', 120)
+      .attr('height', 50)
+      .attr('rx', 8)
       .attr('fill', '#4CAF50')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 2);
+      .attr('stroke', '#000')
+      .attr('stroke-width', 3);
       
     stampButton.append('text')
-      .attr('x', 40)
-      .attr('y', 25)
+      .attr('x', 60)
+      .attr('y', 30)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('fill', 'white')
-      .attr('font-family', 'Arial')
-      .attr('font-size', '14px')
+      .attr('font-family', 'Arial, sans-serif')
+      .attr('font-size', '18px')
+      .attr('font-weight', 'bold')
       .text('STAMP');
     
-    // Stamp toggle state
+    // Stamp toggle state - start as false (off)
     let stampEnabled = false;
     
     // Toggle stamp function
-    stampButton.on('click', function() {
+    stampButton.on('click', function(event) {
+      // Stop event propagation to prevent other click handlers
+      event.stopPropagation();
+      
+      // Toggle the state
       stampEnabled = !stampEnabled;
       
       // Visual feedback for toggle state
@@ -203,8 +208,7 @@ function handleMicrointeraction(event) {
       .on('drag', function (event, d) {
         const svgPosition = svgRoot.node().getBoundingClientRect();
         const newX = Math.max(0, Math.min(1467, event.x - svgPosition.left - 288));
-        console.log('New X position: ', newX);
-
+        
         // Update the button's position
         d3.select(this).attr('transform', `translate(${newX}, 0)`);  
         
@@ -250,8 +254,8 @@ function handleMicrointeraction(event) {
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
           
-        // If stamping is enabled, create permanent elements
-        if (stampEnabled) {
+        // IMPORTANT: Only stamp if explicitly enabled by the stamp button
+        if (stampEnabled === true) {
           console.log('Stamping at position:', newX);
           
           // Create permanent mini icon
