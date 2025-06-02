@@ -1,26 +1,7 @@
 window.addEventListener('DOMContentLoaded', (event) => {
-  // Initialize stamp state globally
+  // Initialize stamp state globally - CORRECTLY off by default
   window.stampEnabled = false;
   
-  // Remove the HTML button handler, we'll create it in SVG
-  
-  // Fix audio autoplay
-  const audioPlayer = document.getElementById('audioPlayer');
-  if (audioPlayer) {
-    // Try to play audio as soon as possible
-    document.addEventListener('click', function audioClickHandler() {
-      audioPlayer.muted = false;
-      audioPlayer.play().then(() => {
-        console.log('Audio started on first click');
-      }).catch(err => {
-        console.error('Audio failed to play:', err);
-      });
-      
-      // Remove this handler after first interaction
-      document.removeEventListener('click', audioClickHandler);
-    }, { once: true });
-  }
-
   let svgObject = document.querySelector('#svgObject');
   let backgroundMusic; // Declare backgroundMusic here
 
@@ -56,6 +37,51 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let svgDocument = svgObject.contentDocument;
     let elements = svgDocument.querySelectorAll('.wiggle');
 
+    // Create the stamp button in SVG
+    let svgRoot = d3.select(svgDocument.documentElement);
+    
+    // Create stamp button in SVG - this will move with the content
+    const stampButtonGroup = svgRoot.append('g')
+      .attr('class', 'stamp-button-group')
+      .attr('transform', 'translate(1500, 150)') // Position in top right of SVG
+      .style('cursor', 'pointer');
+    
+    // Create button background
+    stampButtonGroup.append('rect')
+      .attr('width', 120)
+      .attr('height', 50)
+      .attr('rx', 8)
+      .attr('fill', '#4CAF50') // Start with green (OFF)
+      .attr('stroke', '#000')
+      .attr('stroke-width', 3);
+    
+    // Create button text
+    stampButtonGroup.append('text')
+      .attr('x', 60)
+      .attr('y', 30)
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'middle')
+      .attr('fill', 'white')
+      .attr('font-family', 'Arial, sans-serif')
+      .attr('font-size', '18px')
+      .attr('font-weight', 'bold')
+      .text('STAMP');
+    
+    // Add click handler to SVG button
+    stampButtonGroup.on('click', function(event) {
+      // Toggle stamp state
+      window.stampEnabled = !window.stampEnabled;
+      
+      // Update button color
+      d3.select(this).select('rect')
+        .attr('fill', window.stampEnabled ? '#FF5722' : '#4CAF50');
+      
+      console.log('Stamp mode is now:', window.stampEnabled ? 'ON' : 'OFF');
+    });
+
+    // Create a persistent stamp group
+    const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
+    
     // Keep track of the currently visible element
     let currentVisibleElement = null;
 
@@ -68,7 +94,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
           // Check if currentVisibleElement is not null before calling handleSliderInteraction
           if (currentVisibleElement) {
             console.log('currentVisibleElement before handleSliderInteraction:', currentVisibleElement);  
-            handleSliderInteraction(currentVisibleElement);
+            
+            // The key change: Only call handleSliderInteraction normally
+            // We don't want icon switching to automatically cause stamping
+            handleSliderInteraction(currentVisibleElement, stampGroup);
           }
         });
     });
@@ -121,63 +150,18 @@ function handleMicrointeraction(event) {
   
 
 
-  function handleSliderInteraction(stagedElement) {
+  function handleSliderInteraction(stagedElement, stampGroup) {
     console.log('handleSliderInteraction called');
 
     let svgObject = document.querySelector('#svgObject');
     let svgDocument = svgObject.contentDocument;
     let svgRoot = d3.select(svgDocument.documentElement);
     
-    // Remove any existing stamp groups and buttons
-    svgRoot.selectAll('.stamp-elements').remove();
-    svgRoot.selectAll('.stamp-button-group').remove();
-    
-    // Create fresh groups for elements
+    // Create groups for temporary elements
     const newGroup = svgRoot.append('g').attr('class', 'slider-elements');
     const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
-    const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
     
-    // Create stamp button in SVG - this will move with the content
-    const stampButtonGroup = svgRoot.append('g')
-      .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1500, 150)') // Position in top right of SVG
-      .style('cursor', 'pointer');
-    
-    // Create button background
-    stampButtonGroup.append('rect')
-      .attr('width', 120)
-      .attr('height', 50)
-      .attr('rx', 8)
-      .attr('fill', window.stampEnabled ? '#FF5722' : '#4CAF50')
-      .attr('stroke', '#000')
-      .attr('stroke-width', 3);
-    
-    // Create button text
-    stampButtonGroup.append('text')
-      .attr('x', 60)
-      .attr('y', 30)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', 'white')
-      .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '18px')
-      .attr('font-weight', 'bold')
-      .text('STAMP');
-    
-    // Add click handler to SVG button
-    stampButtonGroup.on('click', function(event) {
-      // Toggle stamp state
-      window.stampEnabled = !window.stampEnabled;
-      
-      // Update button color
-      d3.select(this).select('rect')
-        .attr('fill', window.stampEnabled ? '#FF5722' : '#4CAF50');
-      
-      console.log('Stamp mode is now:', window.stampEnabled ? 'ON' : 'OFF');
-      
-      // Stop propagation
-      event.stopPropagation();
-    });
+    // No need to create a new stamp group, use the one passed in
     
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
@@ -279,19 +263,18 @@ function handleMicrointeraction(event) {
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
         
-        // FIXED: Now properly handle stamping
-        // Only stamp when window.stampEnabled is TRUE (button is orange)
+        // The key fix: ONLY create stamps when the button is ON
         if (window.stampEnabled === true) {
-          console.log('Stamping mode ON - Creating permanent elements');
+          console.log('Stamping mode ON - Creating permanent mark');
           
-          // Create permanent elements (icon and text)
+          // Create permanent mini icon at the current position
           stampGroup.append('use')
             .attr('xlink:href', `#${elementId}`)
             .attr('x', 3*(newX) + 745.5)
             .attr('y', yPosMap[elementId])
             .attr('transform', 'scale(0.33)')
             .style('opacity', 0.7);
-          
+            
           // Create permanent year text
           stampGroup.append("text")
             .attr("x", newX + 400)
