@@ -1,27 +1,26 @@
 window.addEventListener('DOMContentLoaded', (event) => {
-  // Initialize stamp state globally
+  // Initialize stamp state globally - CORRECTLY off by default
   window.stampEnabled = false;
   
   // Set up stamp button toggle functionality
   const stampButton = document.getElementById('stampButton');
   if (stampButton) {
-    // Clear any existing click handlers
-    stampButton.replaceWith(stampButton.cloneNode(true));
+    // Make sure it starts with green (OFF state)
+    stampButton.style.backgroundColor = '#4CAF50';
     
-    // Get fresh reference after cloning
-    const freshStampButton = document.getElementById('stampButton');
-    
-    freshStampButton.addEventListener('click', function(event) {
-      // Toggle the state
+    // Set up click handler correctly
+    stampButton.addEventListener('click', function(event) {
+      // Toggle stamp state
       window.stampEnabled = !window.stampEnabled;
       
-      // Update button appearance
+      // Update button color - RED for ON, GREEN for OFF
       this.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
       
-      console.log('Stamp mode toggled:', window.stampEnabled ? 'ON' : 'OFF');
+      console.log('Stamp mode is now:', window.stampEnabled ? 'ON' : 'OFF');
       
-      // Prevent event propagation to window
+      // Stop propagation to prevent interference
       event.stopPropagation();
+      event.preventDefault();
     });
   }
 
@@ -158,8 +157,7 @@ function handleMicrointeraction(event) {
     const stampButton = document.getElementById('stampButton');
     if (stampButton) {
       stampButton.style.display = 'block';
-      
-      // Ensure button color matches the current state
+      // Ensure button color matches current state
       stampButton.style.backgroundColor = window.stampEnabled ? '#FF5722' : '#4CAF50';
     }
     
@@ -237,7 +235,7 @@ function handleMicrointeraction(event) {
         // Remove previous temporary elements
         tempGroup.selectAll("*").remove();
         
-        // Always add current year and percentage as temporary elements
+        // Always add temporary elements that follow the slider
         tempGroup.append("text")
           .attr("id", "yearDisplay")
           .attr("x", newX + 400)
@@ -262,20 +260,21 @@ function handleMicrointeraction(event) {
           .attr('x', 3*(newX) + 745.5)
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
-          
-        // FIX: Now we properly check window.stampEnabled
-        // ONLY create permanent elements when stamp is enabled (button is orange)
+        
+        // FIXED: Now properly handle stamping
+        // Only stamp when window.stampEnabled is TRUE (button is orange)
         if (window.stampEnabled === true) {
-          console.log('Stamping mode ON - Creating permanent elements at:', newX);
+          console.log('STAMPING - Creating permanent mark');
           
-          // Create permanent elements (icon and text)
+          // Create permanent mini icon
           stampGroup.append('use')
             .attr('xlink:href', `#${elementId}`)
             .attr('x', 3*(newX) + 745.5)
             .attr('y', yPosMap[elementId])
             .attr('transform', 'scale(0.33)')
-            .style('opacity', 0.7); // Slightly transparent to distinguish from temp
+            .style('opacity', 0.7); // Slightly transparent
             
+          // Create permanent year text
           stampGroup.append("text")
             .attr("x", newX + 400)
             .attr("y", 275)
@@ -285,6 +284,7 @@ function handleMicrointeraction(event) {
             .attr("fill", "rgba(0,0,0,0.5)")
             .text(`${currentYear}`);
             
+          // Create permanent percentage text
           stampGroup.append("text")
             .attr("x", newX + 290)
             .attr("y", 320)
