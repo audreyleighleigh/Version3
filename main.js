@@ -46,32 +46,54 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create temp group for elements that shouldn't be stamped
     const globalTempGroup = svgRoot.append('g').attr('class', 'global-temp-elements');
     
-    // Create stamp button in SVG that works like a camera shutter
+    // Create stamp button in SVG that works like a camera shutter - moved further down and right
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1500, 150)')
+      .attr('transform', 'translate(1700, 650)') // Moved down and to the right
       .style('cursor', 'pointer');
     
-    // Create button background
+    // Create button background (made slightly larger)
     stampButtonGroup.append('rect')
-      .attr('width', 120)
-      .attr('height', 50)
+      .attr('width', 150)
+      .attr('height', 60)
       .attr('rx', 8)
       .attr('fill', '#4CAF50')
       .attr('stroke', '#000')
       .attr('stroke-width', 3);
     
-    // Create button text
-    stampButtonGroup.append('text')
-      .attr('x', 60)
-      .attr('y', 30)
+    // Create stamp icon instead of text
+    const stampIcon = stampButtonGroup.append('g')
+      .attr('transform', 'translate(30, 10)');
+    
+    // Draw stamp base (rectangle with serrated edge)
+    stampIcon.append('path')
+      .attr('d', 'M0,0 h80 v25 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 ' +
+              'c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 ' +
+              'c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 z')
+      .attr('fill', 'white')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 1);
+    
+    // Draw stamp handle
+    stampIcon.append('path')
+      .attr('d', 'M30,0 v-10 h20 v10')
+      .attr('fill', 'none')
+      .attr('stroke', 'white')
+      .attr('stroke-width', 4);
+    
+    // Add word "STAMP" inside the stamp icon
+    stampIcon.append('text')
+      .attr('x', 40)
+      .attr('y', 17)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
-      .attr('fill', 'white')
+      .attr('fill', 'black')
       .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '18px')
+      .attr('font-size', '12px')
       .attr('font-weight', 'bold')
       .text('STAMP');
+    
+    // Removed "Click to stamp" label
     
     // Store current state for the stamp button to use
     window.currentStampState = {
@@ -84,8 +106,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Add click handler to stamp button - works like a camera shutter
     stampButtonGroup.on('click', function(event) {
       // Visual feedback (briefly change color)
-      const buttonRect = d3.select(this).select('rect');
-      buttonRect.attr('fill', '#FF5722');
+      d3.select(this).select('rect')
+        .attr('fill', '#FF5722');
       
       // If we have current state information, create a stamp
       if (window.currentStampState.elementId) {
@@ -121,7 +143,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
       
       // Reset button color after brief delay
       setTimeout(() => {
-        buttonRect.attr('fill', '#4CAF50');
+        d3.select(this).select('rect')
+          .attr('fill', '#4CAF50');
       }, 200);
     });
 
