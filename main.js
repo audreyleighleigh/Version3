@@ -43,6 +43,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create a persistent stamp group for saved snapshots (only once)
     const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
     
+    // Create temp group for elements that shouldn't be stamped
+    const globalTempGroup = svgRoot.append('g').attr('class', 'global-temp-elements');
+    
     // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
@@ -124,18 +127,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     // Keep track of the currently visible element
     let currentVisibleElement = null;
+    
+    // Track if we're switching between icons (to prevent stamping)
+    window.switchingIcons = false;
 
     elements.forEach(element => {
       d3.select(element)
         .on('click', function (event, d) {
+          // Set flag to indicate we're switching icons
+          window.switchingIcons = true;
+          
+          // Clear any temporary elements from previous interactions
+          globalTempGroup.selectAll("*").remove();
+          
           let stagedElementId = handleMicrointeraction(event);
           currentVisibleElement = handleStagedElement(svgDocument, stagedElementId, currentVisibleElement);
 
-          // Check if currentVisibleElement is not null before calling handleSliderInteraction
           if (currentVisibleElement) {
             console.log('currentVisibleElement before handleSliderInteraction:', currentVisibleElement);  
-            handleSliderInteraction(currentVisibleElement, stampGroup);
+            handleSliderInteraction(currentVisibleElement, stampGroup, globalTempGroup);
           }
+          
+          // Reset flag after a delay
+          setTimeout(() => {
+            window.switchingIcons = false;
+          }, 100);
         });
     });
   });
@@ -187,16 +203,22 @@ function handleMicrointeraction(event) {
   
 
 
-  function handleSliderInteraction(stagedElement, stampGroup) {
+  function handleSliderInteraction(stagedElement, stampGroup, globalTempGroup) {
     console.log('handleSliderInteraction called');
 
     let svgObject = document.querySelector('#svgObject');
     let svgDocument = svgObject.contentDocument;
     let svgRoot = d3.select(svgDocument.documentElement);
     
-    // Create groups for temporary elements
+    // Create new group for slider-specific elements
     const newGroup = svgRoot.append('g').attr('class', 'slider-elements');
-    const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
+    
+    // Use the passed globalTempGroup instead of creating a new temp group
+    // This ensures we maintain proper state when switching between icons
+    const tempGroup = globalTempGroup;
+    
+    // Clear any existing temp elements to start fresh
+    tempGroup.selectAll("*").remove();
     
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
