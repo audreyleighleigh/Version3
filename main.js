@@ -1,5 +1,5 @@
 window.addEventListener('DOMContentLoaded', (event) => {
-  // Initialize stamp state globally - CORRECTLY off by default
+  // Initialize stamp state globally
   window.stampEnabled = false;
   
   let svgObject = document.querySelector('#svgObject');
@@ -36,14 +36,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     let svgDocument = svgObject.contentDocument;
     let elements = svgDocument.querySelectorAll('.wiggle');
-
-    // Create the stamp button in SVG
+    
+    // Create the SVG root selection (only once)
     let svgRoot = d3.select(svgDocument.documentElement);
     
-    // Create stamp button in SVG - this will move with the content
+    // Create a persistent stamp group for saved snapshots (only once)
+    const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
+    
+    // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1500, 150)') // Position in top right of SVG
+      .attr('transform', 'translate(1500, 150)')
       .style('cursor', 'pointer');
     
     // Create button background
@@ -51,7 +54,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
       .attr('width', 120)
       .attr('height', 50)
       .attr('rx', 8)
-      .attr('fill', '#4CAF50') // Start with green (OFF)
+      .attr('fill', '#4CAF50')
       .attr('stroke', '#000')
       .attr('stroke-width', 3);
     
@@ -67,21 +70,58 @@ window.addEventListener('DOMContentLoaded', (event) => {
       .attr('font-weight', 'bold')
       .text('STAMP');
     
-    // Add click handler to SVG button
+    // Store current state for the stamp button to use
+    window.currentStampState = {
+      elementId: null,
+      position: null,
+      year: null,
+      percentage: null
+    };
+    
+    // Add click handler to stamp button - works like a camera shutter
     stampButtonGroup.on('click', function(event) {
-      // Toggle stamp state
-      window.stampEnabled = !window.stampEnabled;
+      // Visual feedback (briefly change color)
+      const buttonRect = d3.select(this).select('rect');
+      buttonRect.attr('fill', '#FF5722');
       
-      // Update button color
-      d3.select(this).select('rect')
-        .attr('fill', window.stampEnabled ? '#FF5722' : '#4CAF50');
+      // If we have current state information, create a stamp
+      if (window.currentStampState.elementId) {
+        console.log('Taking a snapshot! Creating stamp at:', window.currentStampState);
+        
+        // Create permanent icon at the saved position
+        stampGroup.append('use')
+          .attr('xlink:href', `#${window.currentStampState.elementId}`)
+          .attr('x', 3*(window.currentStampState.position) + 745.5)
+          .attr('y', window.currentStampState.yPos)
+          .attr('transform', 'scale(0.33)')
+          .style('opacity', 0.7);
+        
+        // Create permanent year text
+        stampGroup.append("text")
+          .attr("x", window.currentStampState.position + 400)
+          .attr("y", 275)
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "30px")
+          .attr("text-anchor", "end")
+          .attr("fill", "rgba(0,0,0,0.5)")
+          .text(`${window.currentStampState.year}`);
+        
+        // Create permanent percentage text
+        stampGroup.append("text")
+          .attr("x", window.currentStampState.position + 290)
+          .attr("y", 320)
+          .text(`     + ${window.currentStampState.percentage.toFixed(2)}%`)
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "30px")
+          .attr("fill", "rgba(255,0,0,0.5)");
+      }
       
-      console.log('Stamp mode is now:', window.stampEnabled ? 'ON' : 'OFF');
+      // Reset button color after brief delay
+      setTimeout(() => {
+        buttonRect.attr('fill', '#4CAF50');
+      }, 200);
     });
 
-    // Create a persistent stamp group
-    const stampGroup = svgRoot.append('g').attr('class', 'stamp-elements');
-    
     // Keep track of the currently visible element
     let currentVisibleElement = null;
 
@@ -94,9 +134,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
           // Check if currentVisibleElement is not null before calling handleSliderInteraction
           if (currentVisibleElement) {
             console.log('currentVisibleElement before handleSliderInteraction:', currentVisibleElement);  
-            
-            // The key change: Only call handleSliderInteraction normally
-            // We don't want icon switching to automatically cause stamping
             handleSliderInteraction(currentVisibleElement, stampGroup);
           }
         });
@@ -161,11 +198,9 @@ function handleMicrointeraction(event) {
     const newGroup = svgRoot.append('g').attr('class', 'slider-elements');
     const tempGroup = svgRoot.append('g').attr('class', 'temp-elements');
     
-    // No need to create a new stamp group, use the one passed in
-    
     // Get element ID for the icon references
     let elementId = stagedElement.id.replace('Staged', '');
-
+    
     let yPosMap = {
       'Square1': 670,
       'Square2': 500,
@@ -174,22 +209,12 @@ function handleMicrointeraction(event) {
       'Square5': 20,
       'Square6': -140,
     };
-
-    // We don't create the left icon here anymore
-    
-    console.log('SVG Root: ', svgRoot.node());
-    console.log('SVG: ', svgRoot);
-  
-    const button = svgRoot.select('#Dot1');
-    console.log('Button: ', button);
-  
-    const sliderInteraction = d3.select(stagedElement);
-    console.log('Slider Interaction: ', sliderInteraction);
   
     // Get the CSV URL
+    const sliderInteraction = d3.select(stagedElement);
     let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
     console.log('CSV URL: ', csvUrl);
-  
+
     // Load the CSV data
     d3.csv(csvUrl).then(data => {
       console.log('Loaded data: ', data);
@@ -223,16 +248,17 @@ function handleMicrointeraction(event) {
         
         // Calculate current year and percentage
         const currentYear = Math.round(yearScale(newX));
-        console.log('Current year: ', currentYear);
-        
-        const currentSizeData = data.find(d => +d.YEAR === currentYear);
-        console.log('Current size data: ', currentSizeData);
-        
         const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE;
-        console.log('Current size: ', currentSize);
-        
         const percentageChange = ((currentSize - size1984) / size1984) * 100;
-        console.log('Percentage change: ', percentageChange);
+        
+        // Store current state for the stamp button to use
+        window.currentStampState = {
+          elementId: elementId,
+          position: newX,
+          year: currentYear,
+          percentage: percentageChange,
+          yPos: yPosMap[elementId]
+        };
         
         // Remove previous temporary elements
         tempGroup.selectAll("*").remove();
@@ -263,37 +289,7 @@ function handleMicrointeraction(event) {
           .attr('y', yPosMap[elementId])
           .attr('transform', 'scale(0.33)');
         
-        // The key fix: ONLY create stamps when the button is ON
-        if (window.stampEnabled === true) {
-          console.log('Stamping mode ON - Creating permanent mark');
-          
-          // Create permanent mini icon at the current position
-          stampGroup.append('use')
-            .attr('xlink:href', `#${elementId}`)
-            .attr('x', 3*(newX) + 745.5)
-            .attr('y', yPosMap[elementId])
-            .attr('transform', 'scale(0.33)')
-            .style('opacity', 0.7);
-            
-          // Create permanent year text
-          stampGroup.append("text")
-            .attr("x", newX + 400)
-            .attr("y", 275)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "30px")
-            .attr("text-anchor", "end")
-            .attr("fill", "rgba(0,0,0,0.5)")
-            .text(`${currentYear}`);
-            
-          // Create permanent percentage text
-          stampGroup.append("text")
-            .attr("x", newX + 290)
-            .attr("y", 320)
-            .text(`     + ${percentageChange.toFixed(2)}%`)
-            .attr("font-family", "sans-serif")
-            .attr("font-size", "30px")
-            .attr("fill", "rgba(255,0,0,0.5)");
-        }
+        // Remove the automatic stamping code here - only the STAMP button creates stamps now
         
         // Update the scale of the element based on the data
         if (currentSizeData) {
@@ -309,86 +305,3 @@ function handleMicrointeraction(event) {
       console.error('Error loading CSV data: ', error);
     });
   }
-  
-  
-/*latest working handleSliderInteraction 2/25/24
-  function handleSliderInteraction(stagedElement) {
-    console.log('handleSliderInteraction called');
-    //console.log('This is the staged element: ', stagedElement.outerHTML);
-  
-    const svgDocument = d3.select('#svgObject').node().contentDocument;
-    const svg = d3.select(svgDocument);
-    const button = svg.select('#Dot1');
-    const sliderInteraction = d3.select(stagedElement); // Select the staged element
-  
-    // Get the CSV URL from the data-csv-url attribute
-    let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
-    console.log('CSV URL: ', csvUrl);
-  
-    // Load the CSV data
-    d3.csv(csvUrl).then(data => {
-      console.log('Loaded data: ', data);
-        // Find the size value for the year 1984
-    const size1984 = +data.find(d => d.YEAR === '1984').SIZE; // Convert to number
-    console.log('Size in 1984: ', size1984);
-      
-  
-      // Create scales for year and size mapping
-      const yearScale = d3.scaleLinear()
-        .domain([288, 1755])
-        .range([1984, 2022]);
-      console.log('Year scale: ', yearScale);
-  
-      const sizeScale = d3.scaleLinear()
-        .domain([18.31, 40.98])
-        .range([.75, 1.5]); // Adjusted to represent your scaling range
-      console.log('Size scale: ', sizeScale);
-  
-      // Set the transform origin to the center of the sliderInteraction
-      sliderInteraction.style('transform-origin', 'center bottom');
-  
-      // Create the drag behavior
-      const drag = d3.drag()
-        .on('drag', function (event) {
-          // Calculate the new X position within constraints
-          const newX = Math.max(288, Math.min(1755, event.x));
-          console.log('New X position: ', newX);
-  
-          // Update the button's position
-          d3.select(this).attr('transform', `translate(${newX}, 176)`);
-  
-          // Calculate the current year based on slider position
-          const currentYear = Math.round(yearScale(newX));
-          console.log('Current year: ', currentYear);
-  
-          // Find the corresponding data entry for the current year
-          const currentSizeData = data.find(d => +d.YEAR === currentYear);
-          console.log('Current size data: ', currentSizeData);
-  
-          // If data is found, update the sliderInteraction size
-          if (currentSizeData) {
-            // Use the sizeScale to calculate a scale factor based on the size
-            const scaleFactor = sizeScale(+currentSizeData.SIZE);
-            console.log('Scale factor: ', scaleFactor);
-  
-            // Update the transform attribute of the sliderInteraction group to scale it
-            sliderInteraction.attr('transform', `scale(${scaleFactor})`);
-          }
-  
-          // Find the size value for the current year
-          const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE; // Convert to number
-          console.log('Current size: ', currentSize);
-  
-          // Calculate the percentage change
-          const percentageChange = ((currentSize - size1984) / size1984) * 100;
-          console.log('Percentage change: ', percentageChange);
-        });
-  
-      // Apply the drag behavior to the button
-      button.call(drag);
-    }).catch(error => {
-      console.error('Error loading CSV data: ', error);
-    });
-}
-
- */
