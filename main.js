@@ -209,9 +209,16 @@ function handleMicrointeraction(event) {
       'Square5': 20,
       'Square6': -140,
     };
-  
-    // Get the CSV URL
+    
+    // Get the slider interaction element
     const sliderInteraction = d3.select(stagedElement);
+    console.log('Slider Interaction: ', sliderInteraction);
+    
+    // Select the slider button (THIS WAS MISSING)
+    const button = svgRoot.select('#Dot1');
+    console.log('Button: ', button);
+    
+    // Get the CSV URL
     let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
     console.log('CSV URL: ', csvUrl);
 
@@ -248,6 +255,11 @@ function handleMicrointeraction(event) {
         
         // Calculate current year and percentage
         const currentYear = Math.round(yearScale(newX));
+        
+        // Find the data for current year (THIS WAS MISSING)
+        const currentSizeData = data.find(d => +d.YEAR === currentYear);
+        console.log('Current size data: ', currentSizeData);
+        
         const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE;
         const percentageChange = ((currentSize - size1984) / size1984) * 100;
         
