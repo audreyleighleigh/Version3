@@ -46,54 +46,53 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create temp group for elements that shouldn't be stamped
     const globalTempGroup = svgRoot.append('g').attr('class', 'global-temp-elements');
     
-    // Create stamp button in SVG that works like a camera shutter - moved further down and right
+    // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1700, 650)') // Moved down and to the right
+      .attr('transform', 'translate(1700, 650)')
       .style('cursor', 'pointer');
     
-    // Create button background (made slightly larger)
+    // Create square button background with rounded corners
     stampButtonGroup.append('rect')
-      .attr('width', 150)
-      .attr('height', 60)
-      .attr('rx', 8)
+      .attr('width', 100)
+      .attr('height', 100)
+      .attr('rx', 15) // Rounded corners
       .attr('fill', '#4CAF50')
-      .attr('stroke', '#000')
+      .attr('stroke', '#333')
       .attr('stroke-width', 3);
     
-    // Create stamp icon instead of text
+    // Create stamp icon in the center of the button
     const stampIcon = stampButtonGroup.append('g')
-      .attr('transform', 'translate(30, 10)');
+      .attr('transform', 'translate(15, 25)');
     
-    // Draw stamp base (rectangle with serrated edge)
+    // Draw a simple square stamp base with serrated bottom edge
     stampIcon.append('path')
-      .attr('d', 'M0,0 h80 v25 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 ' +
-              'c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 ' +
-              'c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 c-2,2 -4,-2 -6,0 z')
+      .attr('d', 'M0,0 h70 v40 c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 ' +
+              'c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 ' +
+              'c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 ' +
+              'c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 c-2,2 -3,-2 -5,0 z')
       .attr('fill', 'white')
       .attr('stroke', 'black')
-      .attr('stroke-width', 1);
+      .attr('stroke-width', 1.5);
     
-    // Draw stamp handle
+    // Draw stamp handle (shorter and centered)
     stampIcon.append('path')
-      .attr('d', 'M30,0 v-10 h20 v10')
-      .attr('fill', 'none')
+      .attr('d', 'M35,0 v-12 h0 v12')
       .attr('stroke', 'white')
-      .attr('stroke-width', 4);
+      .attr('stroke-width', 8)
+      .attr('stroke-linecap', 'round');
     
-    // Add word "STAMP" inside the stamp icon
+    // Add word "STAMP" inside the stamp with larger text
     stampIcon.append('text')
-      .attr('x', 40)
-      .attr('y', 17)
+      .attr('x', 35)
+      .attr('y', 25)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('fill', 'black')
       .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '12px')
+      .attr('font-size', '18px')
       .attr('font-weight', 'bold')
       .text('STAMP');
-    
-    // Removed "Click to stamp" label
     
     // Store current state for the stamp button to use
     window.currentStampState = {
