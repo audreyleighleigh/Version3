@@ -1,0 +1,35 @@
+.tooltip {
+  position: absolute;
+  background-color: #000000;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+  z-index: 9999;
+  max-width: 200px;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+  border: 1px solid white;
+}
+
+.tooltip:after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #000000 transparent transparent transparent;
+}
+
+[id$="Staged"] {
+  position: relative;
+}
+
+[id$="Staged"]:hover .tooltip {
+  opacity: 1;
+}

@@ -6,6 +6,7 @@
     <title>The Rising Cost of Life</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="css/tooltips.css">
     <style>
         /* Video container styles */
         #videoContainer {
@@ -44,6 +45,22 @@
         #skipVideoButton:hover {
             background-color: rgba(0, 0, 0, 0.9);
         }
+        
+        /* Simple tooltip style */
+        #simpleTooltip {
+            position: absolute;
+            background-color: #000;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 9999;
+            pointer-events: none;
+            display: none;
+            border: 1px solid white;
+            max-width: 150px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -68,9 +85,9 @@
     <!-- Audio player initially muted but can autoplay -->
     <audio id="audioPlayer" muted autoplay loop>
         <!-- Use direct GitHub raw URLs -->
+        <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s.m4a" type="audio/mp4">
+        <!-- Fallback to WAV if needed -->
         <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/355cf5cf042a10b8943d999c2813cb2dff2e53ee/MA_BlueFoxMusic_Moonlight_30s.wav" type="audio/wav">
-        <!-- If you have an MP3 version, you can add its URL as well -->
-        <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/355cf5cf042a10b8943d999c2813cb2dff2e53ee/MA_BlueFoxMusic_Moonlight_30s.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
     </audio>
     
@@ -175,6 +192,56 @@
                     startAudio();
                 }
             });
+            
+            // Create a simple tooltip system
+            const tooltip = document.getElementById('simpleTooltip');
+            
+            // Map for tooltip content
+            const tooltipContent = {
+                "housing": "Housing Costs",
+                "medical": "Medical Care",
+                "food": "Food Costs",
+                "education": "Education Costs",
+                "transportation": "Transportation Costs"
+            };
+            
+            // Listen for mousemove events on the entire document
+            document.addEventListener('mousemove', function(e) {
+                // Get SVG object
+                const svgObject = document.getElementById('svgObject');
+                if (!svgObject || !svgObject.contentDocument) return;
+                
+                // Log mouse position for debugging (can remove later)
+                console.log("Mouse at:", e.clientX, e.clientY);
+                
+                // Hide tooltip by default
+                tooltip.style.display = 'none';
+                
+                // Check if we're in the bottom area where mini squares might be
+                const svgRect = svgObject.getBoundingClientRect();
+                const bottomArea = svgRect.bottom - 40; // Approximate position of mini squares
+                
+                if (Math.abs(e.clientY - bottomArea) < 30 && 
+                    e.clientX > svgRect.left && 
+                    e.clientX < svgRect.right) {
+                    
+                    // For testing, show tooltip based on horizontal position
+                    const relativeX = e.clientX - svgRect.left;
+                    const sectionWidth = svgRect.width / 5;
+                    const section = Math.floor(relativeX / sectionWidth);
+                    
+                    const tooltipKeys = Object.keys(tooltipContent);
+                    if (section >= 0 && section < tooltipKeys.length) {
+                        const key = tooltipKeys[section];
+                        
+                        // Show and position tooltip
+                        tooltip.textContent = tooltipContent[key];
+                        tooltip.style.display = 'block';
+                        tooltip.style.left = (e.clientX - 75) + 'px'; // Center tooltip
+                        tooltip.style.top = (e.clientY - 40) + 'px'; // Position above cursor
+                    }
+                }
+            });
         });
         
         document.getElementById('audioPlayer').addEventListener('error', function(e) {
@@ -183,5 +250,6 @@
         }, true); // Capture event in capturing phase
     </script>
     <script src="main.js" defer></script>
+    <script src="js/mini-tooltips.js" defer></script>
 </body>
 </html>
