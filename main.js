@@ -9,7 +9,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Fetch the audio file
 // Fetch the audio file
     // Fetch the audio file
-    fetch('https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s.m4a')
+    fetch('https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s_optimized.m4a')
       .then(response => response.blob())
       .then(blob => {
         // Create an Audio object
