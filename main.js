@@ -62,37 +62,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
       .attr('stroke-width', 2)
       .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))');
     
-    // Create stamp icon in the center of the button
-    const stampIcon = stampButtonGroup.append('g')
-      .attr('transform', 'translate(20, 20)');
-    
-    // Draw a clean stamp base with rounded corners
-    stampIcon.append('rect')
-      .attr('width', 60)
-      .attr('height', 35)
-      .attr('rx', 8) // Rounded corners
-      .attr('fill', '#f5f5f5')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 2);
-    
-    // Draw stamp handle (clean and centered)
-    stampIcon.append('rect')
-      .attr('x', 25)
-      .attr('y', -15)
-      .attr('width', 10)
-      .attr('height', 15)
-      .attr('rx', 5)
-      .attr('fill', '#333');
-    
-    // Add clean "STAMP" text
-    stampIcon.append('text')
-      .attr('x', 30)
-      .attr('y', 22)
+    // Add big centered "STAMP" text
+    stampButtonGroup.append('text')
+      .attr('x', 50)
+      .attr('y', 60)
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'middle')
       .attr('fill', '#333')
       .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '14px')
+      .attr('font-size', '24px')
       .attr('font-weight', 'bold')
       .text('STAMP');
     
@@ -108,7 +86,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
     stampButtonGroup.on('click', function(event) {
       // Visual feedback (briefly change color)
       d3.select(this).select('rect')
-        .attr('fill', '#f0f0f0');
+        .attr('fill', '#4CAF50');
+      
+      // Reset color after a brief delay
+      setTimeout(() => {
+        d3.select(this).select('rect')
+          .attr('fill', 'white');
+      }, 200);
       
       // If we have current state information, create a stamp
       if (window.currentStampState.elementId) {
