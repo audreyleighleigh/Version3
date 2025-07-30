@@ -49,30 +49,53 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1700, 650)')
+      .attr('transform', 'translate(1650, 50)')
       .style('cursor', 'pointer');
     
-    // Create clean white button background with subtle shadow
+    // Create transparent button background with border and shadow
     stampButtonGroup.append('rect')
       .attr('width', 100)
       .attr('height', 100)
       .attr('rx', 20) // More rounded corners
-      .attr('fill', 'white')
-      .attr('stroke', '#e0e0e0')
-      .attr('stroke-width', 2)
-      .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))');
+      .attr('fill', 'transparent')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 3)
+      .style('filter', 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))');
     
-    // Add big centered "STAMP" text
-    stampButtonGroup.append('text')
-      .attr('x', 50)
-      .attr('y', 60)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'middle')
-      .attr('fill', '#333')
-      .attr('font-family', 'Arial, sans-serif')
-      .attr('font-size', '24px')
-      .attr('font-weight', 'bold')
-      .text('STAMP');
+    // Add camera icon
+    const cameraGroup = stampButtonGroup.append('g')
+      .attr('transform', 'translate(50, 50)');
+    
+    // Camera body (rounded rectangle) - transparent fill, dark border
+    cameraGroup.append('rect')
+      .attr('x', -30)
+      .attr('y', -22.5)
+      .attr('width', 60)
+      .attr('height', 45)
+      .attr('rx', 7.5)
+      .attr('fill', 'transparent')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 3);
+    
+    // Camera lens (circle) - transparent fill, dark border
+    cameraGroup.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 12)
+      .attr('fill', 'transparent')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 3);
+    
+    // Camera viewfinder (small rectangle on top) - transparent fill, dark border
+    cameraGroup.append('rect')
+      .attr('x', -12)
+      .attr('y', -37.5)
+      .attr('width', 24)
+      .attr('height', 12)
+      .attr('rx', 3)
+      .attr('fill', 'transparent')
+      .attr('stroke', '#333')
+      .attr('stroke-width', 3);
     
     // Store current state for the stamp button to use
     window.currentStampState = {
@@ -85,13 +108,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Add click handler to stamp button - works like a camera shutter
     stampButtonGroup.on('click', function(event) {
       // Visual feedback (briefly change color)
-      d3.select(this).select('rect')
-        .attr('fill', '#4CAF50');
+      const buttonRect = d3.select(this).select('rect');
       
-      // Reset color after a brief delay
-      setTimeout(() => {
-        d3.select(this).select('rect')
-          .attr('fill', 'white');
+      buttonRect.attr('fill', 'rgba(76, 175, 80, 0.3)'); // Semi-transparent green
+      
+      // Reset color after a brief delay using the same reference
+      setTimeout(function() {
+        buttonRect.attr('fill', 'transparent');
       }, 200);
       
       // If we have current state information, create a stamp
@@ -126,11 +149,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
           .attr("fill", "rgba(255,0,0,0.5)");
       }
       
-      // Reset button color after brief delay
-      setTimeout(() => {
-        d3.select(this).select('rect')
-          .attr('fill', '#4CAF50');
-      }, 200);
+
     });
 
     // Keep track of the currently visible element
