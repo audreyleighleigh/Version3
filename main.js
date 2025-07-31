@@ -180,23 +180,36 @@ window.addEventListener('DOMContentLoaded', (event) => {
       if (window.currentStampState.elementId) {
         console.log('Taking a snapshot! Creating stamp at:', window.currentStampState);
         
+        // Store the stamp data for this specific stamp
+        const stampData = {
+          elementId: window.currentStampState.elementId,
+          year: window.currentStampState.year,
+          percentage: window.currentStampState.percentage,
+          position: window.currentStampState.position,
+          yPos: window.currentStampState.yPos
+        };
+        
         // Create permanent icon at the saved position
         const stampedIcon = stampGroup.append('use')
-          .attr('xlink:href', `#${window.currentStampState.elementId}`)
-          .attr('x', 3*(window.currentStampState.position) + 745.5)
-          .attr('y', window.currentStampState.yPos)
+          .attr('xlink:href', `#${stampData.elementId}`)
+          .attr('x', 3*(stampData.position) + 745.5)
+          .attr('y', stampData.yPos)
           .attr('transform', 'scale(0.33)')
           .style('opacity', 0.7)
-          .style('cursor', 'pointer');
+          .style('cursor', 'pointer')
+          .datum(stampData); // Attach the stamp data to this element
         
         // Add hover functionality to the stamped icon
         stampedIcon
           .on('mouseenter', function(event) {
-            // Determine category based on elementId - use the actual elementId from the stamp state
-            const category = getCategory(window.currentStampState.elementId);
+            // Get the stamp data attached to this specific element
+            const data = d3.select(this).datum();
+            
+            // Determine category based on elementId from the stamp data
+            const category = getCategory(data.elementId);
             
             // Debug: Log the elementId and category
-            console.log('Stamp tooltip - elementId:', window.currentStampState.elementId, 'category:', category);
+            console.log('Stamp tooltip - elementId:', data.elementId, 'category:', category);
             
             // Create tooltip
             const tooltip = d3.select('body').append('div')
@@ -211,7 +224,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               .style('pointer-events', 'none')
               .style('z-index', '1000')
               .style('box-shadow', '0 2px 8px rgba(0,0,0,0.3)')
-              .html(`Category: ${category}<br>Year: ${window.currentStampState.year}<br>Increase: +${window.currentStampState.percentage.toFixed(2)}%`);
+              .html(`Category: ${category}<br>Year: ${data.year}<br>Increase: +${data.percentage.toFixed(2)}%`);
             
             // Position tooltip near the mouse
             const mouseX = event.pageX + 10;
