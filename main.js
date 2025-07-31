@@ -1,3 +1,16 @@
+// Function to get category name based on element ID
+function getCategory(elementId) {
+  const categoryMap = {
+    'Square1': 'Clothing',
+    'Square2': 'Housing', 
+    'Square3': 'Groceries',
+    'Square4': 'Medical Care',
+    'Square5': 'Education',
+    'Square6': 'Energy'
+  };
+  return categoryMap[elementId] || '';
+}
+
 window.addEventListener('DOMContentLoaded', (event) => {
   // Initialize stamp state globally
   window.stampEnabled = false;
@@ -49,14 +62,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1650, 50)')
+      .attr('transform', 'translate(1650, 55)')
       .style('cursor', 'pointer');
     
     // Create transparent button background with border and shadow
     stampButtonGroup.append('rect')
-      .attr('width', 100)
-      .attr('height', 100)
-      .attr('rx', 20) // More rounded corners
+      .attr('width', 80)
+      .attr('height', 80)
+      .attr('rx', 16) // More rounded corners
       .attr('fill', 'transparent')
       .attr('stroke', '#333')
       .attr('stroke-width', 3)
@@ -64,7 +77,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     
     // Add camera icon
     const cameraGroup = stampButtonGroup.append('g')
-      .attr('transform', 'translate(50, 50)');
+      .attr('transform', 'translate(40, 43)');
     
     // Camera body (rounded rectangle) - transparent fill, dark border
     cameraGroup.append('rect')
@@ -105,6 +118,52 @@ window.addEventListener('DOMContentLoaded', (event) => {
       percentage: null
     };
     
+    // Add one-time tooltip for the stamp button (only shows if user hasn't seen it before)
+    const hasSeenTooltip = localStorage.getItem('stampTooltipSeen');
+    
+    if (!hasSeenTooltip) {
+      // Show tooltip after a short delay on first visit
+      setTimeout(() => {
+        const tooltip = d3.select('body').append('div')
+          .attr('class', 'stamp-button-tooltip')
+          .style('position', 'absolute')
+          .style('background', 'rgba(0, 0, 0, 0.8)')
+          .style('color', 'white')
+          .style('padding', '8px 12px')
+          .style('border-radius', '6px')
+          .style('font-size', '14px')
+          .style('font-family', 'Arial, sans-serif')
+          .style('pointer-events', 'none')
+          .style('z-index', '1000')
+          .style('box-shadow', '0 2px 8px rgba(0,0,0,0.3)')
+          .style('opacity', '0')
+          .style('transition', 'opacity 0.3s ease')
+          .text('Snapshot');
+        
+        // Position tooltip near the button
+        const buttonRect = stampButtonGroup.node().getBoundingClientRect();
+        const tooltipX = buttonRect.left + buttonRect.width / 2;
+        const tooltipY = buttonRect.top - 10;
+        tooltip
+          .style('left', (tooltipX - 30) + 'px')
+          .style('top', tooltipY + 'px');
+        
+        // Fade in the tooltip
+        setTimeout(() => {
+          tooltip.style('opacity', '1');
+        }, 100);
+        
+        // Auto-remove after 3 seconds and mark as seen
+        setTimeout(() => {
+          tooltip.style('opacity', '0');
+          setTimeout(() => {
+            tooltip.remove();
+            localStorage.setItem('stampTooltipSeen', 'true');
+          }, 300);
+        }, 3000);
+               }, 1000);
+     }
+    
     // Add click handler to stamp button - works like a camera shutter
     stampButtonGroup.on('click', function(event) {
       // Visual feedback (briefly change color)
@@ -122,12 +181,60 @@ window.addEventListener('DOMContentLoaded', (event) => {
         console.log('Taking a snapshot! Creating stamp at:', window.currentStampState);
         
         // Create permanent icon at the saved position
-        stampGroup.append('use')
+        const stampedIcon = stampGroup.append('use')
           .attr('xlink:href', `#${window.currentStampState.elementId}`)
           .attr('x', 3*(window.currentStampState.position) + 745.5)
           .attr('y', window.currentStampState.yPos)
           .attr('transform', 'scale(0.33)')
-          .style('opacity', 0.7);
+          .style('opacity', 0.7)
+          .style('cursor', 'pointer');
+        
+        // Add hover functionality to the stamped icon
+        stampedIcon
+          .on('mouseenter', function(event) {
+            // Determine category based on elementId - use the actual elementId from the stamp state
+            const category = getCategory(window.currentStampState.elementId);
+            
+            // Debug: Log the elementId and category
+            console.log('Stamp tooltip - elementId:', window.currentStampState.elementId, 'category:', category);
+            
+            // Create tooltip
+            const tooltip = d3.select('body').append('div')
+              .attr('class', 'stamp-tooltip')
+              .style('position', 'absolute')
+              .style('background', 'rgba(0, 0, 0, 0.8)')
+              .style('color', 'white')
+              .style('padding', '8px 12px')
+              .style('border-radius', '6px')
+              .style('font-size', '14px')
+              .style('font-family', 'Arial, sans-serif')
+              .style('pointer-events', 'none')
+              .style('z-index', '1000')
+              .style('box-shadow', '0 2px 8px rgba(0,0,0,0.3)')
+              .html(`Category: ${category}<br>Year: ${window.currentStampState.year}<br>Increase: +${window.currentStampState.percentage.toFixed(2)}%`);
+            
+            // Position tooltip near the mouse
+            const mouseX = event.pageX + 10;
+            const mouseY = event.pageY - 10;
+            tooltip
+              .style('left', mouseX + 'px')
+              .style('top', mouseY + 'px');
+          })
+          .on('mousemove', function(event) {
+            // Update tooltip position as mouse moves
+            const tooltip = d3.select('.stamp-tooltip');
+            if (!tooltip.empty()) {
+              const mouseX = event.pageX + 10;
+              const mouseY = event.pageY - 10;
+              tooltip
+                .style('left', mouseX + 'px')
+                .style('top', mouseY + 'px');
+            }
+          })
+          .on('mouseleave', function() {
+            // Remove tooltip when mouse leaves
+            d3.selectAll('.stamp-tooltip').remove();
+          });
         
         // Create permanent year text
         stampGroup.append("text")
@@ -158,7 +265,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Track if we're switching between icons (to prevent stamping)
     window.switchingIcons = false;
 
-    elements.forEach(element => {
+            elements.forEach(element => {
       d3.select(element)
         .on('click', function (event, d) {
           // Set flag to indicate we're switching icons
@@ -166,6 +273,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
           
           // Clear any temporary elements from previous interactions
           globalTempGroup.selectAll("*").remove();
+          
+          // Remove any existing category labels when switching icons
+          let svgRoot = d3.select(svgDocument.documentElement);
+          svgRoot.selectAll('.category-label').remove();
           
           let stagedElementId = handleMicrointeraction(event);
           currentVisibleElement = handleStagedElement(svgDocument, stagedElementId, currentVisibleElement);
@@ -292,6 +403,22 @@ function handleMicrointeraction(event) {
   
       // Set the transform origin to the center
       sliderInteraction.style('transform-origin', 'center bottom');
+      
+      // Add category label immediately when icon is selected
+      const category = getCategory(elementId);
+      if (category) {
+        console.log(`${elementId} icon selected! Adding ${category} label...`);
+        svgRoot.append('text')
+          .attr('class', 'category-label')
+          .attr('x', 1800) // Moved to the left (was 1600)
+          .attr('y', 1000) // Adjusted position - not too far down
+          .attr('font-family', 'Arial, sans-serif')
+          .attr('font-size', '94px') // 30% larger (was 72px, 72 * 1.3 = 93.6, rounded to 94)
+          .attr('font-weight', 'bold')
+          .attr('fill', 'white')
+          .attr('text-anchor', 'end')
+          .text(category);
+      }
   
       // Create the drag behavior
       const drag = d3.drag()
@@ -358,6 +485,10 @@ function handleMicrointeraction(event) {
           console.log('Scale factor: ', scaleFactor);
           sliderInteraction.attr('transform', `scale(${scaleFactor})`);
         }
+        
+        // Debug: Log the elementId to see what it actually is
+        console.log('Current elementId:', elementId);
+        console.log('Is elementId === ShirtImage?', elementId === 'ShirtImage');
       });
 
       // Apply the drag behavior to the button
