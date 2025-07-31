@@ -62,53 +62,65 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1650, 55)')
+      .attr('transform', 'translate(1650, 45)')
       .style('cursor', 'pointer');
     
-    // Create transparent button background with border and shadow
+    // Create elegant button background with subtle gradient and enhanced shadow
     stampButtonGroup.append('rect')
       .attr('width', 80)
       .attr('height', 80)
-      .attr('rx', 16) // More rounded corners
-      .attr('fill', 'transparent')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 3)
-      .style('filter', 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))');
+      .attr('rx', 20) // Even more rounded corners for elegance
+      .attr('fill', 'rgba(255,255,255,0.1)') // Subtle white background
+      .attr('stroke', 'rgba(255,255,255,0.8)') // Softer white border
+      .attr('stroke-width', 2) // Thinner, more elegant border
+      .style('filter', 'drop-shadow(0 6px 12px rgba(0,0,0,0.2)) blur(0.5px)') // Enhanced shadow with subtle blur
+      .style('backdrop-filter', 'blur(4px)') // Subtle backdrop blur for depth
+      .style('transition', 'all 0.3s ease'); // Smooth transitions
     
     // Add camera icon
     const cameraGroup = stampButtonGroup.append('g')
       .attr('transform', 'translate(40, 43)');
     
-    // Camera body (rounded rectangle) - transparent fill, dark border
+    // Camera body (rounded rectangle) - elegant styling with subtle fill
     cameraGroup.append('rect')
       .attr('x', -30)
       .attr('y', -22.5)
       .attr('width', 60)
       .attr('height', 45)
-      .attr('rx', 7.5)
-      .attr('fill', 'transparent')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 3);
+      .attr('rx', 8)
+      .attr('fill', 'rgba(255,255,255,0.05)') // Very subtle white fill
+      .attr('stroke', 'rgba(255,255,255,0.9)') // Softer white border
+      .attr('stroke-width', 2.5) // Slightly thinner for elegance
+      .style('filter', 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'); // Subtle inner shadow
     
-    // Camera lens (circle) - transparent fill, dark border
+    // Camera lens (circle) - elegant styling with inner detail
     cameraGroup.append('circle')
       .attr('cx', 0)
       .attr('cy', 0)
       .attr('r', 12)
-      .attr('fill', 'transparent')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 3);
+      .attr('fill', 'rgba(255,255,255,0.08)') // Subtle white fill
+      .attr('stroke', 'rgba(255,255,255,0.9)') // Softer white border
+      .attr('stroke-width', 2.5);
     
-    // Camera viewfinder (small rectangle on top) - transparent fill, dark border
+    // Inner lens detail for more realistic look
+    cameraGroup.append('circle')
+      .attr('cx', 0)
+      .attr('cy', 0)
+      .attr('r', 8)
+      .attr('fill', 'transparent')
+      .attr('stroke', 'rgba(255,255,255,0.6)') // Inner ring
+      .attr('stroke-width', 1);
+    
+    // Camera viewfinder (small rectangle on top) - elegant styling
     cameraGroup.append('rect')
       .attr('x', -12)
       .attr('y', -37.5)
       .attr('width', 24)
       .attr('height', 12)
-      .attr('rx', 3)
-      .attr('fill', 'transparent')
-      .attr('stroke', '#333')
-      .attr('stroke-width', 3);
+      .attr('rx', 4)
+      .attr('fill', 'rgba(255,255,255,0.05)') // Very subtle white fill
+      .attr('stroke', 'rgba(255,255,255,0.9)') // Softer white border
+      .attr('stroke-width', 2.5);
     
     // Store current state for the stamp button to use
     window.currentStampState = {
@@ -166,15 +178,29 @@ window.addEventListener('DOMContentLoaded', (event) => {
     
     // Add click handler to stamp button - works like a camera shutter
     stampButtonGroup.on('click', function(event) {
-      // Visual feedback (briefly change color)
+      // Enhanced visual feedback with elegant animation
       const buttonRect = d3.select(this).select('rect');
+      const cameraGroup = d3.select(this).select('g');
       
-      buttonRect.attr('fill', 'rgba(76, 175, 80, 0.3)'); // Semi-transparent green
+      // Elegant click animation - subtle scale and color change
+      buttonRect
+        .transition()
+        .duration(150)
+        .attr('fill', 'rgba(255,255,255,0.25)') // Elegant white glow
+        .attr('transform', 'scale(0.95)') // Subtle scale down
+        .transition()
+        .duration(150)
+        .attr('fill', 'rgba(255,255,255,0.1)') // Back to subtle background
+        .attr('transform', 'scale(1)'); // Back to normal size
       
-      // Reset color after a brief delay using the same reference
-      setTimeout(function() {
-        buttonRect.attr('fill', 'transparent');
-      }, 200);
+      // Subtle camera icon animation
+      cameraGroup
+        .transition()
+        .duration(100)
+        .attr('transform', 'translate(40, 43) scale(0.9)') // Slight scale down
+        .transition()
+        .duration(100)
+        .attr('transform', 'translate(40, 43) scale(1)'); // Back to normal
       
       // If we have current state information, create a stamp
       if (window.currentStampState.elementId) {
@@ -253,10 +279,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
         stampGroup.append("text")
           .attr("x", window.currentStampState.position + 400)
           .attr("y", 275)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "30px")
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
           .attr("text-anchor", "end")
-          .attr("fill", "rgba(0,0,0,0.5)")
+          .attr("fill", "rgba(255,255,255,0.7)")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)")
           .text(`${window.currentStampState.year}`);
         
         // Create permanent percentage text
@@ -264,9 +292,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
           .attr("x", window.currentStampState.position + 290)
           .attr("y", 320)
           .text(`     + ${window.currentStampState.percentage.toFixed(2)}%`)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "30px")
-          .attr("fill", "rgba(255,0,0,0.5)");
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
+          .attr("fill", "rgba(255,255,255,0.7)")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)");
       }
       
 
@@ -425,7 +455,7 @@ function handleMicrointeraction(event) {
           .attr('class', 'category-label')
           .attr('x', 1800) // Moved to the left (was 1600)
           .attr('y', 1000) // Adjusted position - not too far down
-          .attr('font-family', 'Arial, sans-serif')
+          .attr('font-family', 'Georgia, serif')
           .attr('font-size', '94px') // 30% larger (was 72px, 72 * 1.3 = 93.6, rounded to 94)
           .attr('font-weight', 'bold')
           .attr('fill', 'white')
@@ -469,19 +499,23 @@ function handleMicrointeraction(event) {
           .attr("id", "yearDisplay")
           .attr("x", newX + 400)
           .attr("y", 275)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "30px")
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
           .attr("text-anchor", "end")
-          .attr("fill", "black")
+          .attr("fill", "white")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)")
           .text(`${currentYear}`);
 
         tempGroup.append("text")
           .attr("x", newX + 290)
           .attr("y", 320)
           .text(`     + ${percentageChange.toFixed(2)}%`)
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "30px")
-          .attr("fill", "red");
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
+          .attr("fill", "white")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)");
           
         // Create temporary mini icon that follows the slider
         tempGroup.append('use')
@@ -506,6 +540,60 @@ function handleMicrointeraction(event) {
 
       // Apply the drag behavior to the button
       button.call(drag);
+      
+      // Initialize display with current thumb position
+      setTimeout(() => {
+        const currentThumbX = parseFloat(button.attr('transform')?.replace('translate(', '').replace(', 0)', '') || 0);
+        const currentThumbYear = Math.round(yearScale(currentThumbX));
+        const currentThumbSizeData = data.find(d => +d.YEAR === currentThumbYear);
+        const currentThumbSize = +data.find(d => d.YEAR === currentThumbYear.toString()).SIZE;
+        const currentThumbPercentageChange = ((currentThumbSize - size1984) / size1984) * 100;
+        
+        // Store current state for the stamp button to use
+        window.currentStampState = {
+          elementId: elementId,
+          position: currentThumbX,
+          year: currentThumbYear,
+          percentage: currentThumbPercentageChange,
+          yPos: yPosMap[elementId]
+        };
+        
+        // Display current year and percentage immediately
+        tempGroup.append("text")
+          .attr("id", "yearDisplay")
+          .attr("x", currentThumbX + 400)
+          .attr("y", 275)
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
+          .attr("text-anchor", "end")
+          .attr("fill", "white")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)")
+          .text(`${currentThumbYear}`);
+
+        tempGroup.append("text")
+          .attr("x", currentThumbX + 290)
+          .attr("y", 320)
+          .text(`     + ${currentThumbPercentageChange.toFixed(2)}%`)
+          .attr("font-family", "Georgia, serif")
+          .attr("font-size", "32px")
+          .attr("font-weight", "normal")
+          .attr("fill", "white")
+          .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8), 1px 1px 2px rgba(0,0,0,0.6)");
+          
+        // Create temporary mini icon that follows the slider
+        tempGroup.append('use')
+          .attr('xlink:href', `#${elementId}`)
+          .attr('x', 3*(currentThumbX) + 745.5)
+          .attr('y', yPosMap[elementId])
+          .attr('transform', 'scale(0.33)');
+        
+        // Update the scale of the element based on the current data
+        if (currentThumbSizeData) {
+          const scaleFactor = sizeScale(+currentThumbSizeData.SIZE);
+          sliderInteraction.attr('transform', `scale(${scaleFactor})`);
+        }
+      }, 50);
     }).catch(error => {
       console.error('Error loading CSV data: ', error);
     });
