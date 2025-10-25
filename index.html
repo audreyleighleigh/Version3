@@ -83,13 +83,38 @@
     </div>
     
     <!-- Audio player initially muted but can autoplay -->
-    <audio id="audioPlayer" muted autoplay loop>
+    <audio id="audioPlayer" muted autoplay loop preload="auto">
         <!-- Use direct GitHub raw URLs -->
         <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s_optimized.m4a" type="audio/mp4">
         <!-- Fallback to WAV if needed -->
         <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/355cf5cf042a10b8943d999c2813cb2dff2e53ee/MA_BlueFoxMusic_Moonlight_30s.wav" type="audio/wav">
         Your browser does not support the audio element.
     </audio>
+
+    <!-- Mute Button for Background Music -->
+    <button id="muteButton" style="
+        position: absolute;
+        top: 40px;
+        right: 70px;
+        z-index: 10000;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.9);
+        border: 2px solid rgba(255, 255, 255, 0.8);
+        border-radius: 20px;
+        width: 65px;
+        height: 65px;
+        font-size: 24px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        font-weight: 500;
+    " onmouseover="this.style.background='rgba(255, 255, 255, 0.1)'; this.style.border='2px solid rgba(255, 255, 255, 1)'" onmouseout="this.style.background='transparent'; this.style.border='2px solid rgba(255, 255, 255, 0.8)'">
+        🔊
+    </button>
     
     <!-- Vimeo Player API -->
     <script src="https://player.vimeo.com/api/player.js"></script>
@@ -158,6 +183,9 @@
                     
                     // Start audio automatically when skipped
                     startAudio();
+                    
+                    // Show mute button when audio starts
+                    document.getElementById('muteButton').style.display = 'flex';
                 });
             }
             
@@ -176,6 +204,9 @@
                 audioPlayer.muted = false;
                 audioPlayer.volume = 1.0;
                 startAudio();
+                
+                // Show mute button when audio starts
+                document.getElementById('muteButton').style.display = 'flex';
                 
                 // Additional attempt in case the first fails
                 setTimeout(() => {
@@ -212,10 +243,12 @@
                 if (!svgObject || !svgObject.contentDocument) return;
                 
                 // Log mouse position for debugging (can remove later)
-                console.log("Mouse at:", e.clientX, e.clientY);
+                // console.log("Mouse at:", e.clientX, e.clientY);
                 
                 // Hide tooltip by default
-                tooltip.style.display = 'none';
+                if (tooltip) {
+                    tooltip.style.display = 'none';
+                }
                 
                 // Check if we're in the bottom area where mini squares might be
                 const svgRect = svgObject.getBoundingClientRect();
@@ -248,6 +281,59 @@
             console.error('Audio error:', e);
             alert('Error loading audio file. See console for details.');
         }, true); // Capture event in capturing phase
+
+        // Mute button functionality - moved inside DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            const muteButton = document.getElementById('muteButton');
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            // Function to update button appearance based on current state
+            function updateButtonAppearance() {
+                if (audioPlayer.muted) {
+                    muteButton.textContent = '🔇';
+                    muteButton.style.background = 'transparent';
+                    muteButton.style.border = '2px solid rgba(255, 255, 255, 0.8)';
+                    muteButton.style.color = 'rgba(255, 255, 255, 0.9)';
+                } else {
+                    muteButton.textContent = '🔊';
+                    muteButton.style.background = 'transparent';
+                    muteButton.style.border = '2px solid rgba(255, 255, 255, 0.8)';
+                    muteButton.style.color = 'rgba(255, 255, 255, 0.9)';
+                }
+            }
+            
+            let isProcessingMute = false;
+            
+            muteButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                console.log('Mute button clicked, current muted state:', audioPlayer.muted);
+                
+                if (isProcessingMute) return;
+                isProcessingMute = true;
+                
+                setTimeout(() => {
+                    isProcessingMute = false;
+                }, 100);
+                
+                if (audioPlayer.muted) {
+                    // Unmute
+                    audioPlayer.muted = false;
+                    audioPlayer.volume = 1.0;
+                    // Ensure audio plays when unmuting
+                    if (audioPlayer.paused) {
+                        audioPlayer.play().catch(e => console.log('Play failed:', e));
+                    }
+                    console.log('Audio unmuted');
+                } else {
+                    // Mute
+                    audioPlayer.muted = true;
+                    console.log('Audio muted');
+                }
+                updateButtonAppearance();
+            });
+        });
     </script>
     <script src="main.js" defer></script>
     <script src="js/mini-tooltips.js" defer></script>

@@ -116,7 +116,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     // Create stamp button in SVG that works like a camera shutter
     const stampButtonGroup = svgRoot.append('g')
       .attr('class', 'stamp-button-group')
-      .attr('transform', 'translate(1650, 45)')
+      .attr('transform', 'translate(1650, 42)')
       .style('cursor', 'pointer');
     
     // Create elegant button background with subtle gradient and enhanced shadow

@@ -805,10 +805,10 @@
       <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/9d7eb257dd6c7bf0d3859f14d11fa691e61f6692/Sky.png" x="-10" y="0" width="3200" height="1700" preserveAspectRatio="xMidYMid slice"/>
     </g>
 <g id="Cloud2">
-<image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/eb0d5a8d90f7540f95f6e8784f975fe557fa688c/Cloud.png" x="300" y="450" width="600" height="300" preserveAspectRatio="xMidYMid meet"/>
+<image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/eb0d5a8d90f7540f95f6e8784f975fe557fa688c/Cloud.png" x="300" y="450" width="500" height="250" preserveAspectRatio="xMidYMid meet"/>
 </g>
 <g id="Cloud1">
-  <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/eb0d5a8d90f7540f95f6e8784f975fe557fa688c/Cloud.png" x="1000" y="650" width="168" height="84" preserveAspectRatio="xMidYMid meet"/>
+  <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/eb0d5a8d90f7540f95f6e8784f975fe557fa688c/Cloud.png" x="1000" y="650" width="400" height="200" preserveAspectRatio="xMidYMid meet"/>
 </g>
 <g id="Cloud3">
   <image href="https://raw.githubusercontent.com/audreyleighleigh/Version3/eb0d5a8d90f7540f95f6e8784f975fe557fa688c/Cloud.png" x="0" y="500" width="120" height="60" preserveAspectRatio="xMidYMid meet"/>
