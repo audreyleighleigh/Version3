@@ -1,14 +1,68 @@
 // Function to get category name based on element ID
 function getCategory(elementId) {
   const categoryMap = {
-    'Square1': 'Clothing',
-    'Square2': 'Housing', 
-    'Square3': 'Groceries',
-    'Square4': 'Medical Care',
-    'Square5': 'Education',
-    'Square6': 'Energy'
+    'Square1': 'clothing',
+    'Square2': 'housing', 
+    'Square3': 'groceries',
+    'Square4': 'medical',
+    'Square5': 'education',
+    'Square6': 'energy'
   };
   return categoryMap[elementId] || '';
+}
+
+// Function to show tooltip with percentage change relative to median income
+function showTooltip(year, category, percentageChange, event) {
+  // Create tooltip if it doesn't exist
+  let tooltip = document.getElementById('percentage-tooltip');
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.id = 'percentage-tooltip';
+    tooltip.style.cssText = `
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 8px;
+      font-family: 'Georgia', serif;
+      font-size: 14px;
+      pointer-events: none;
+      z-index: 1000;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    `;
+    document.body.appendChild(tooltip);
+  }
+  
+  // Convert category to display name
+  const displayNames = {
+    'clothing': 'Clothing',
+    'housing': 'Housing',
+    'groceries': 'Groceries',
+    'medical': 'Medical Care',
+    'education': 'Education',
+    'energy': 'Energy'
+  };
+  
+  const displayCategory = displayNames[category] || category;
+  
+  // Update tooltip content
+  tooltip.innerHTML = `
+    <strong>${year}</strong><br>
+    <strong>${displayCategory}</strong><br>
+    <span style="color: #ffd700;">${percentageChange.toFixed(2)}%</span> change since 1984<br>
+    <em>relative to median income</em>
+  `;
+  
+  // Position tooltip near the mouse
+  tooltip.style.left = (event.clientX + 15) + 'px';
+  tooltip.style.top = (event.clientY - 15) + 'px';
+  tooltip.style.display = 'block';
+  
+  // Hide tooltip after a delay
+  setTimeout(() => {
+    tooltip.style.display = 'none';
+  }, 3000);
 }
 
 window.addEventListener('DOMContentLoaded', (event) => {
@@ -234,6 +288,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
             // Determine category based on elementId from the stamp data
             const category = getCategory(data.elementId);
             
+            // Convert category to display name
+            const displayNames = {
+              'clothing': 'Clothing',
+              'housing': 'Housing',
+              'groceries': 'Groceries',
+              'medical': 'Medical Care',
+              'education': 'Education',
+              'energy': 'Energy'
+            };
+            
+            const displayCategory = displayNames[category] || category;
+            
             // Debug: Log the elementId and category
             console.log('Stamp tooltip - elementId:', data.elementId, 'category:', category);
             
@@ -250,7 +316,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
               .style('pointer-events', 'none')
               .style('z-index', '1000')
               .style('box-shadow', '0 2px 8px rgba(0,0,0,0.3)')
-              .html(`Category: ${category}<br>Year: ${data.year}<br>Increase: +${data.percentage.toFixed(2)}%`);
+              .html(`Category: ${displayCategory}<br>Year: ${data.year}<br>Increase: +${data.percentage.toFixed(2)}%`);
             
             // Position tooltip near the mouse
             const mouseX = event.pageX + 10;
@@ -421,42 +487,67 @@ function handleMicrointeraction(event) {
     const button = svgRoot.select('#Dot1');
     console.log('Button: ', button);
     
-    // Get the CSV URL
-    let csvUrl = sliderInteraction.node().getAttribute('data-csv-url');
-    console.log('CSV URL: ', csvUrl);
-
-    // Load the CSV data
-    d3.csv(csvUrl).then(data => {
-      console.log('Loaded data: ', data);
-  
+    // Load the master CSV data (only once, then filter by category)
+    let masterData = null;
+    
+    // Check if we already have the master data loaded
+    if (window.masterCSVData) {
+      masterData = window.masterCSVData;
+      console.log('Using cached master CSV data');
+      initializeSlider();
+    } else {
+      // Load the master CSV data for the first time
+      console.log('Loading master CSV data...');
+              d3.csv('all_categories_affordability.csv').then(data => {
+        window.masterCSVData = data; // Cache it globally
+        masterData = data;
+        console.log('Master CSV data loaded:', data);
+        initializeSlider();
+      }).catch(error => {
+        console.error('Error loading master CSV data:', error);
+        return;
+      });
+      return; // Exit early, will continue in initializeSlider callback
+    }
+    
+    // Function to initialize slider after data is loaded
+    function initializeSlider() {
+      // Filter data for the current category
+      const category = getCategory(elementId);
+      const categoryData = masterData.filter(d => d.CATEGORY === category);
+      console.log(`Filtered data for ${category}:`, categoryData);
+      
       // Find the size value for the year 1984
-      const size1984 = +data.find(d => d.YEAR === '1984').SIZE;
+      const size1984 = +categoryData.find(d => d.YEAR === '1984').SIZE;
       console.log('Size in 1984: ', size1984);
-  
+      
       // Create scales for year and size mapping
       const yearScale = d3.scaleLinear()
         .domain([0, 1467])
-        .range([1984, 2022]);
+        .range([1984, 2023]); // Updated to 2023
       console.log('Year scale: ', yearScale);
-  
+      
+      // Create dynamic size scale based on actual data range
+      const sizeValues = categoryData.map(d => +d.SIZE);
+      const minSize = Math.min(...sizeValues);
+      const maxSize = Math.max(...sizeValues);
       const sizeScale = d3.scaleLinear()
-        .domain([18.31, 40.98])
-        .range([.75, 1.5]);
+        .domain([minSize, maxSize])
+        .range([0.75, 1.5]);
       console.log('Size scale: ', sizeScale);
-  
+      
       // Set the transform origin to the center
       sliderInteraction.style('transform-origin', 'center bottom');
       
       // Add category label immediately when icon is selected
-      const category = getCategory(elementId);
       if (category) {
         console.log(`${elementId} icon selected! Adding ${category} label...`);
         svgRoot.append('text')
           .attr('class', 'category-label')
-          .attr('x', 1800) // Moved to the left (was 1600)
-          .attr('y', 1000) // Adjusted position - not too far down
+          .attr('x', 1800)
+          .attr('y', 1000)
           .attr('font-family', 'Georgia, serif')
-          .attr('font-size', '94px') // 30% larger (was 72px, 72 * 1.3 = 93.6, rounded to 94)
+          .attr('font-size', '94px')
           .attr('font-weight', 'bold')
           .attr('fill', 'white')
           .attr('text-anchor', 'end')
@@ -475,12 +566,16 @@ function handleMicrointeraction(event) {
         // Calculate current year and percentage
         const currentYear = Math.round(yearScale(newX));
         
-        // Find the data for current year (THIS WAS MISSING)
-        const currentSizeData = data.find(d => +d.YEAR === currentYear);
+        // Find the data for current year
+        const currentSizeData = categoryData.find(d => +d.YEAR === currentYear);
         console.log('Current size data: ', currentSizeData);
         
-        const currentSize = +data.find(d => d.YEAR === currentYear.toString()).SIZE;
-        const percentageChange = ((currentSize - size1984) / size1984) * 100;
+        const currentSize = +categoryData.find(d => d.YEAR === currentYear.toString()).SIZE;
+        // The CSV already contains the percentage values, so use them directly
+        const percentageChange = currentSize;
+        
+        // Add tooltip showing percentage change relative to median income
+        showTooltip(currentYear, category, percentageChange, event);
         
         // Store current state for the stamp button to use
         window.currentStampState = {
@@ -545,9 +640,10 @@ function handleMicrointeraction(event) {
       setTimeout(() => {
         const currentThumbX = parseFloat(button.attr('transform')?.replace('translate(', '').replace(', 0)', '') || 0);
         const currentThumbYear = Math.round(yearScale(currentThumbX));
-        const currentThumbSizeData = data.find(d => +d.YEAR === currentThumbYear);
-        const currentThumbSize = +data.find(d => d.YEAR === currentThumbYear.toString()).SIZE;
-        const currentThumbPercentageChange = ((currentThumbSize - size1984) / size1984) * 100;
+        const currentThumbSizeData = categoryData.find(d => +d.YEAR === currentThumbYear);
+        const currentThumbSize = +categoryData.find(d => d.YEAR === currentThumbYear.toString()).SIZE;
+        // The CSV already contains the percentage values, so use them directly
+        const currentThumbPercentageChange = currentThumbSize;
         
         // Store current state for the stamp button to use
         window.currentStampState = {
@@ -594,7 +690,5 @@ function handleMicrointeraction(event) {
           sliderInteraction.attr('transform', `scale(${scaleFactor})`);
         }
       }, 50);
-    }).catch(error => {
-      console.error('Error loading CSV data: ', error);
-    });
-  }
+    } // End of initializeSlider function
+  } // End of handleSliderInteraction function
