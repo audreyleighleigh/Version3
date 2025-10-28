@@ -70,36 +70,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
   window.stampEnabled = false;
   
   let svgObject = document.querySelector('#svgObject');
-  let backgroundMusic; // Declare backgroundMusic here
 
   svgObject.addEventListener('load', function() {
-    // Fetch the audio file
-// Fetch the audio file
-    // Fetch the audio file
-    fetch('https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s_optimized.m4a')
-      .then(response => response.blob())
-      .then(blob => {
-        // Create an Audio object
-        backgroundMusic = new Audio(URL.createObjectURL(blob));
-
-        backgroundMusic.volume = 1.0;
-        
-        // Debugging statement: Check if the audio file is loading
-        backgroundMusic.addEventListener('canplaythrough', function() {
-          console.log('Audio file has loaded and can be played');
-        });
-
-        // Play the background music after a click
-        window.addEventListener('click', function() {
-          console.log('Window was clicked'); // Debugging statement: Check if the click event is firing
-          backgroundMusic.play();
-        });
-
-        // Debugging statement: Check if the audio is playing
-        backgroundMusic.addEventListener('play', function() {
-          console.log('Audio is playing');
-        });
-      });
 
     let svgDocument = svgObject.contentDocument;
     let elements = svgDocument.querySelectorAll('.wiggle');
