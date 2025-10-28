@@ -223,7 +223,12 @@
             });
             
             // Add additional event listener to ensure audio can play
-            document.addEventListener('click', function() {
+            document.addEventListener('click', function(event) {
+                // Don't trigger on skip button clicks (they handle audio themselves)
+                if (event.target.id === 'skipVideoButton') {
+                    return;
+                }
+                
                 const videoHidden = document.getElementById('videoContainer').style.display === 'none';
                 if (audioPlayer.paused && videoHidden) {
                     startAudio();
