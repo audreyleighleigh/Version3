@@ -83,7 +83,7 @@
     </div>
     
     <!-- Audio player initially muted but can autoplay -->
-    <audio id="audioPlayer" muted autoplay loop preload="auto">
+    <audio id="audioPlayer" muted loop preload="auto">
         <!-- Use direct GitHub raw URLs -->
         <source src="https://raw.githubusercontent.com/audreyleighleigh/Version3/main/MA_BlueFoxMusic_Moonlight_30s_optimized.m4a" type="audio/mp4">
         <!-- Fallback to WAV if needed -->
@@ -181,6 +181,9 @@
                     // Pause the video
                     player.pause();
                     
+                    // Ensure audio starts from the beginning
+                    audioPlayer.currentTime = 0;
+                    
                     // Start audio automatically when skipped
                     startAudio();
                     
@@ -203,6 +206,8 @@
                 // Make sure audio plays when video ends
                 audioPlayer.muted = false;
                 audioPlayer.volume = 1.0;
+                // Ensure audio starts from the beginning
+                audioPlayer.currentTime = 0;
                 startAudio();
                 
                 // Show mute button when audio starts
@@ -219,7 +224,8 @@
             
             // Add additional event listener to ensure audio can play
             document.addEventListener('click', function() {
-                if (audioPlayer.paused && !document.getElementById('videoContainer').style.display) {
+                const videoHidden = document.getElementById('videoContainer').style.display === 'none';
+                if (audioPlayer.paused && videoHidden) {
                     startAudio();
                 }
             });
