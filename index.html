@@ -338,9 +338,10 @@
                     }
                     console.log('Audio unmuted');
                 } else {
-                    // Mute
+                    // Mute - also pause to completely stop playback
                     audioPlayer.muted = true;
-                    console.log('Audio muted');
+                    audioPlayer.pause();
+                    console.log('Audio muted and paused');
                 }
                 updateButtonAppearance();
             });
