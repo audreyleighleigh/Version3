@@ -320,6 +320,8 @@
                 e.stopPropagation();
                 
                 console.log('Mute button clicked, current muted state:', audioPlayer.muted);
+                console.log('Audio player paused state:', audioPlayer.paused);
+                console.log('Audio player current time:', audioPlayer.currentTime);
                 
                 if (isProcessingMute) return;
                 isProcessingMute = true;
